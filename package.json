@@ -1,0 +1,19 @@
+{
+  "name": "twitter_helper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bloodteller123/Twitter_Helper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bloodteller123/Twitter_Helper/issues"
+  },
+  "homepage": "https://github.com/bloodteller123/Twitter_Helper#readme"
+}
