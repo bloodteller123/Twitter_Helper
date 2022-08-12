@@ -140,48 +140,56 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
    try {
     console.log(req.query)
     const ids = req.query.ids
+    const str_ids = req.query.str_ids
+
+    if(str_ids && str_ids.length != ids.length) {
+      res.status(400).send("arrays length doesn't match")
+    }
+
+    const zip_arr = ids.map((i, j) => [i, str_ids?str_ids[j]:undefined])
     // console.log('ID '+id)
     let all_tweets = []
     // each id = one user
-    for (const id of ids){
+    for (const pair of zip_arr){
       // https://github.com/PLhery/node-twitter-api-v2/blob/429c93d982cb460cb690a7239358fcbf175968d3/src/types/v1/tweet.v1.types.ts#L82
       let is_older_24hrs = false;
-      let string_id
+      let string_id = pair[1]
+      let id = pair[0]
 
-      while(!is_older_24hrs){
+      // while(!is_older_24hrs){
 
-        let payload = { 
-          include_entities: true,
-          count: 20,
-          include_rts: true,
-        }
-        if(string_id)
-          payload.max_id = string_id;
-          console.log(payload.max_id)
-        // console.log(string_id);
-        const response = await loggedInClient.v1.userTimeline(id, payload);
-
-        const fetchedTweets = response.tweets;
-        let tweets = fetchedTweets.filter(tweet => {
-          const diff = Date.now() - Date.parse(tweet.created_at);
-          if(diff < 8.76e7) return tweet
-        })
-
-        // next fetch will start from (string_id -1) to avoid duplicate entries
-        string_id = tweets.length!=0? bigInt(tweets[tweets.length-1].id_str).minus(1).toString():"";
-
-        if(tweets.length != fetchedTweets.length){
-          is_older_24hrs=true
-          string_id = undefined
-        }
-        all_tweets.push(...tweets);
+      let payload = { 
+        include_entities: true,
+        count: 5,
+        include_rts: true,
       }
+      if(string_id)
+        payload.max_id = string_id;
+        console.log("max_id: ", payload.max_id)
+      // console.log(string_id);
+      const response = await loggedInClient.v1.userTimeline(id, payload);
 
-      console.log(all_tweets.length)
-      // console.log(all_tweets)
-      res.status(200).send(all_tweets);
+      const fetchedTweets = response.tweets;
+      let tweets = fetchedTweets.filter(tweet => {
+        const diff = Date.now() - Date.parse(tweet.created_at);
+        if(diff < 8.76e7) return tweet
+      })
+
+      // next fetch will start from (string_id -1) to avoid duplicate entries
+      string_id = tweets.length!=0? bigInt(tweets[tweets.length-1].id_str).minus(1).toString():"";
+
+      // if(tweets.length != fetchedTweets.length){
+      //   // is_older_24hrs=true
+      //   string_id = undefined
+      // }
+      // console.log(tweets)
+      all_tweets.push({tweets, string_id});
+      // }
+
     }
-    
+
+    res.status(200).send(all_tweets);
+
    } catch (error) {
     console.log(error)
    }

@@ -4,11 +4,12 @@ import axios from 'axios'
 import TwitterLogin from './services/TwitterLogin';
 import Tweets from "./services/Tweets";
 import qs from 'qs';
-import ScrollComponent from './services/ScrollComponent'
-
 import 'semantic-ui-css/semantic.min.css';
 
 import InfiniteScroll from 'react-infinite-scroll-component';
+
+// import InfiniteScroll from 'react-infinite-scroller';
+
 
 
 import {
@@ -39,17 +40,21 @@ const Home = () =>{
     const[user, setUser] = useState([])
     const[tweets, setTweets] = useState(JSON.parse(window.localStorage.getItem('tweets')) || [])
 
-    const [followings, setFollowings] = useState(JSON.parse(window.localStorage.getItem('followings')) || [])
+    const [isEnd, setisEnd] = useState(false)
 
-    const [fetch, setFetch] = useState(false)
 
-    const dummy_followings = [{
-        username: 'suku8899'
-      }]
+    const [followings, setFollowings] = useState(JSON.parse(window.localStorage.getItem('followings')) || [
+        {
+            id: '295218901',
+            
+        }
+    ])
+
+    // const [fetch, setFetch] = useState(false)
 
     const login = (val) =>{
         setLogin(val)
-        setFollowings(followings=>followings.concat([...dummy_followings]))
+        // setFollowings(followings=>followings.concat([...dummy_followings]))
     }
 
     const logout = ()=>{
@@ -61,6 +66,12 @@ const Home = () =>{
         
         console.log("State Changed")
         console.log('LoggedIn State: ',loggedIn)
+        console.log(tweets)
+        if(loggedIn && tweets.length==0){
+            console.log('load first batch')
+            getTweet();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loggedIn])
 
 
@@ -82,24 +93,27 @@ const Home = () =>{
             f.title === a2[i].title)
     )
     const getTweet = async ()=>{
-        const res = await axios.get("http://localhost:3001/api/twitter/user", {
-            params:{
-                username: 'suku8899'
-            }
-        });
-        console.log(res.data)
-        const tweets_res = await axios.get("http://localhost:3001/api/twitter/id/tweet",{
+
+        console.log("getTweet")
+
+        const res = await axios.get("http://localhost:3001/api/twitter/id/tweet",{
             params: {
-                ids: followings.ids,
-                str_ids: followings.str_ids
+                ids: followings.map(i => i.id),
+                str_ids: followings.map(i => i.str_id)
               },
               paramsSerializer: params => {
                 return qs.stringify(params)
               }
         });
+        // console.log(res)
+        console.log(res.data.length)
+        console.log(res.data)
+        console.log(res.data[0])
+        let str_ids_res = res.data.map(i => i.string_id)
+        let tweets_res = res.data.map(i => i.tweets)
         console.log(tweets_res)
-        console.log(tweets_res.data.length)
-        const filtered_res = tweets_res.data.map((res) =>{
+
+        const filtered_res = tweets_res[0].map((res) =>{
             const id = res.id_str
             const full_text = res.full_text
             const imgurl = res.user.profile_image_url_https
@@ -122,19 +136,15 @@ const Home = () =>{
             // https://stackoverflow.com/questions/70690542/react-js-how-to-properly-append-multiple-items-to-an-array-state-using-its-use
             setTweets((prevTweets) => prevTweets.concat([...filtered_res]))
         }
+        if(filtered_res.length==0){
+            console.log('End of fetch')
+            setisEnd(true)
+        }
 
-        console.log(tweets)
+        setFollowings(followings.map((i,j) => ({id: i.id, str_id: str_ids_res[j]})))
+
     }
 
-    // const onStart = async () =>{
-    //     setFetch(true);
-    //     const res = await axios.get("http://localhost:3001/api/twitter/user", {
-    //         params:{
-    //             username: 'suku8899'
-    //         }
-    //     });
-    //     setUser(res.data)
-    // }
 
     const logout_helper = async ()=>{
         axios.post("http://localhost:3001/api/twitter/logout")
@@ -144,7 +154,11 @@ const Home = () =>{
         })
     }
 
-    
+    const handleScrolling = () =>{
+        if(!isEnd){
+            getTweet()
+        }
+    }
     
     return (
         <div className="Home">
@@ -203,23 +217,36 @@ const Home = () =>{
                         <Header dividing size="huge" as="h1">
                             Dashboard
                         </Header>
-                        <Button primary onClick={getTweet}>Get Tweet</Button>
-                        {/* <Button primary onClick={onStart}>Get Tweet</Button> */}
-                        </Grid.Row>
+                        {/* <Button primary onClick={getTweet}>Get Tweet</Button> */}
+                        </Grid.Row>                        
                         <Grid.Row textAlign="center">
-                            {/* {tweets && <Tweets tweets = {tweets}/>} */}
-                            {/* {fetch && user && <ScrollComponent user = {user}/>} */}
-                            <div id="scrollableDiv" class="column" style={{ height: 300, overflow: "auto" }}>
-                                    <InfiniteScroll
-                                    dataLength={tweets.length}
-                                    next={getTweet}
-                                    hasMore={true}
-                                    loader={<h5>Loading...</h5>}
-                                    scrollableTarget="scrollableDiv"
-                                    >
-                                    {<Tweets tweets = {tweets}/>}
-                                    </InfiniteScroll>
+                        {/* <div class="ui two column centered grid"> */}
+                        {/* {tweets && <Tweets tweets = {tweets}/>} */}
+                        
+                        {/* https://semantic-ui.com/collections/grid.html#/definition */}
+                            <div class="twelve wide column">
+                            <div id="scrollableDiv" style={{ height: 300, overflow: "auto" }}>
+                                        <InfiniteScroll
+                                        dataLength={tweets.length}
+                                        next={handleScrolling}
+                                        hasMore={!isEnd}
+                                        loader={<div class="ui active centered inline loader"></div>}
+                                        scrollThreshold={1}
+                                        // height does the trick????
+                                        height={300}
+                                        endMessage={
+                                            <p style={{textAlign:'center'}}><b>Yay! You've seen it all!</b></p>
+                                        }
+                                        scrollableTarget="scrollableDiv"
+                                        >
+                                        {<Tweets tweets = {tweets}/>}
+                                        </InfiniteScroll>
+                                </div>
                             </div>
+                            <div class="four wide column">
+                            </div>
+                        {/* </div> */}
+                            
                         </Grid.Row>
                         <Divider section hidden />
                     </Grid>
@@ -235,6 +262,9 @@ const Home = () =>{
 
 
 export default Home;
+
+
+
 
 
 

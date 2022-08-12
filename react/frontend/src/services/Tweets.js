@@ -8,24 +8,25 @@ import {
   } from "semantic-ui-react";
 
 const Tweets = ({tweets}) =>{
-    console.log(tweets)
+    // console.log(tweets)
     const style = {
         // height: 30,
-        // border: "1px solid green",
-        // margin: 6,
-        // padding: 8
+        border: "1px solid green",
+        margin: 6,
+        padding: 8,
+        width: "auto"
       };
     return (
         <>
             {tweets.map(tweet =>(
                 <div key={tweet.id} style={style}>
-                    <Card>
+                    <Card fluid>
                         <Card.Content>
-                            <Image src={tweet.imgurl} avatar floated="left"/>
-                            <Card.Header>{tweet.screen_name}</Card.Header>
-                            <Card.Meta>{tweet.name}</Card.Meta>
+                            <Image style={{'font-size':20}} src={tweet.imgurl} avatar floated="left"/>
+                            <Card.Header textAlign="left">{tweet.name}</Card.Header>
+                            <Card.Meta textAlign="left">{"@"+tweet.screen_name}</Card.Meta>
                             <Card.Description>
-                            {tweet.full_text}
+                                {tweet.full_text}
                             </Card.Description>
                         </Card.Content>
                     </Card>
