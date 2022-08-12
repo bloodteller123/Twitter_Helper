@@ -204,7 +204,7 @@ app.get('/api/twitter/users/search' , async(req, res) =>{
   console.log(user_query)
   const params = {
     page:1,
-    count: 3,
+    count: 5,
     include_entities: false
   }
   const foundUsers = await loggedInClient.v1.searchUsers(user_query, params);

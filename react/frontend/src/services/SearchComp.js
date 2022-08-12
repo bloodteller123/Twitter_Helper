@@ -19,6 +19,8 @@ import{
 
 import { useSelector, useDispatch } from 'react-redux';
 
+import '../CSS/SearchComp.scss';
+
 
 const SearchComp = ({loggedIn}) =>{
 
@@ -104,7 +106,15 @@ const SearchComp = ({loggedIn}) =>{
 
 
   return (
-    <Search
+
+  //   <div class="ui search">
+  //     <div class="ui icon input">
+  //       <input class="prompt" type="text" placeholder="Search countries...">
+  //       <i class="search icon"></i>
+  //     </div>
+  //     <div class="results"></div>
+  // </div>
+     <Search 
         loading={loading}
         placeholder='Search...'
         size = "small"

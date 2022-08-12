@@ -22,7 +22,7 @@ import {
     
     const followings = useSelector(selectFollowings)
     const dispatch = useDispatch()
-
+//https://stackoverflow.com/questions/55733903/how-to-align-a-text-and-a-button-element-in-the-div-right-next-to-each-other
     const style = {
             display: 'flex',
             justifyContent: 'center',
