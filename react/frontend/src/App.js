@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import TwitterLogin from './services/TwitterLogin';
 import Home from './Home';
+import { Provider } from 'react-redux';
 import {
   BrowserRouter as Router,
   Routes, Route, Link

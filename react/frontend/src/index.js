@@ -3,14 +3,17 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import store from './app/store';
+import { Provider } from 'react-redux';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   // https://stackoverflow.com/questions/61254372/my-react-component-is-rendering-twice-because-of-strict-mode
   // <React.StrictMode>
+  <Provider store={store}>
     <App />
-  // </React.StrictMode>
-  
+  </Provider>  
+// </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
