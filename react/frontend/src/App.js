@@ -1,14 +1,15 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import TwitterLogin from './services/TwitterLogin';
+import Home from './Home';
 
 
 function App() {
   return (
     <div className="App">
       <div>
-        <TwitterLogin />
+        {/* <TwitterLogin /> */}
+        <Home/>
       </div>
     </div>
   );
