@@ -47,6 +47,9 @@ const Home = () =>{
         {
             id: '295218901',
             
+        },
+        {
+            id: "902926941413453824"
         }
     ])
 
@@ -113,30 +116,39 @@ const Home = () =>{
         let tweets_res = res.data.map(i => i.tweets)
         console.log(tweets_res)
 
-        const filtered_res = tweets_res[0].map((res) =>{
-            const id = res.id_str
-            const full_text = res.full_text
-            const imgurl = res.user.profile_image_url_https
-            const screen_name = res.user.screen_name
-            const name = res.user.name
+        const filtered_res = tweets_res.map((res) =>{
+            return res.map(arr =>{
+                console.log(arr)
+                const id = arr.id_str
+                const full_text = arr.full_text
+                const imgurl = arr.user.profile_image_url_https
+                const screen_name = arr.user.screen_name
+                const name = arr.user.name
 
-            return {
-                id,
-                full_text,
-                imgurl,
-                screen_name,
-                name
-            }
+                return {
+                    id,
+                    full_text,
+                    imgurl,
+                    screen_name,
+                    name
+                }
+            })
+                
         })
+        // console.log(filtered_res)
+//https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
+        const concat_arr = filtered_res.flat() 
+
+        console.log(concat_arr)
 
         /* eslint eqeqeq: 0 */
-        if(!arrayIsEqual(filtered_res,tweets)){
+        if(!arrayIsEqual(concat_arr,tweets)){
             console.log("Not equal")
             // append arrays to a array state
             // https://stackoverflow.com/questions/70690542/react-js-how-to-properly-append-multiple-items-to-an-array-state-using-its-use
-            setTweets((prevTweets) => prevTweets.concat([...filtered_res]))
+            setTweets((prevTweets) => prevTweets.concat([...concat_arr]))
         }
-        if(filtered_res.length==0){
+        if(concat_arr.length==0){
             console.log('End of fetch')
             setisEnd(true)
         }
@@ -222,15 +234,15 @@ const Home = () =>{
                         <Grid.Row textAlign="center">
                         {/* <div class="ui two column centered grid"> */}
                         {/* {tweets && <Tweets tweets = {tweets}/>} */}
-                        
+
                         {/* https://semantic-ui.com/collections/grid.html#/definition */}
-                            <div class="twelve wide column">
+                            <div className="twelve wide column">
                             <div id="scrollableDiv" style={{ height: 300, overflow: "auto" }}>
                                         <InfiniteScroll
                                         dataLength={tweets.length}
                                         next={handleScrolling}
                                         hasMore={!isEnd}
-                                        loader={<div class="ui active centered inline loader"></div>}
+                                        loader={<div className="ui active centered inline loader"></div>}
                                         scrollThreshold={1}
                                         // height does the trick????
                                         height={300}
@@ -243,7 +255,7 @@ const Home = () =>{
                                         </InfiniteScroll>
                                 </div>
                             </div>
-                            <div class="four wide column">
+                            <div className="four wide column">
                             </div>
                         {/* </div> */}
                             

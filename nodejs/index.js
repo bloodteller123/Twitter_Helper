@@ -153,6 +153,7 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
     for (const pair of zip_arr){
       // https://github.com/PLhery/node-twitter-api-v2/blob/429c93d982cb460cb690a7239358fcbf175968d3/src/types/v1/tweet.v1.types.ts#L82
       let is_older_24hrs = false;
+      console.log("pair", pair)
       let string_id = pair[1]
       let id = pair[0]
 
@@ -160,7 +161,7 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
 
       let payload = { 
         include_entities: true,
-        count: 5,
+        count: 2,
         include_rts: true,
       }
       if(string_id)
@@ -186,6 +187,7 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
       all_tweets.push({tweets, string_id});
       // }
 
+      // console.log(tweets)
     }
 
     res.status(200).send(all_tweets);

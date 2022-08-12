@@ -22,7 +22,7 @@ const Tweets = ({tweets}) =>{
                 <div key={tweet.id} style={style}>
                     <Card fluid>
                         <Card.Content>
-                            <Image style={{'font-size':20}} src={tweet.imgurl} avatar floated="left"/>
+                            <Image style={{'fontSize':20}} src={tweet.imgurl} avatar floated="left"/>
                             <Card.Header textAlign="left">{tweet.name}</Card.Header>
                             <Card.Meta textAlign="left">{"@"+tweet.screen_name}</Card.Meta>
                             <Card.Description>
