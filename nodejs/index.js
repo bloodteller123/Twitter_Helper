@@ -1,14 +1,14 @@
 
-
-
 const express = require('express')
 const cors = require('cors')
 const { default: axios } = require('axios')
 const app = express()
 
 const oauth = require('./services/oauth')()
-const METHODS = require('./services/MENUMS')
+// const METHODS = require('./services/MENUMS')
 const {CONSUMER_KEY, CONSUMER_SECRET } = require('./services/Config.js')
+const {TwitterApi} = require('twitter-api-v2')
+
 
 app.use(express.json())
 app.use(cors())
@@ -19,6 +19,8 @@ let access_tokens = {}
 
 // tmp solution
 let tmp_token
+
+let loggedInClient
 
 // placeholders data
 const all_followings = [
@@ -100,24 +102,38 @@ app.post('/api/oauth/request', async (req,res) =>{
 })
 
 app.post('/api/oauth/access', async (req, res) =>{
-  try {
+
     const {oauth_verifier,oauth_token} = req.body
     tmp_token = oauth_token
     // console.log(access_tokens[oauth_token])
     oauth_token_secret = access_tokens[oauth_token]
-    const results = await oauth.getOAuthAccess({
-      oauth_token, oauth_token_secret, oauth_verifier})
+    // const results = await oauth.getOAuthAccess({
+    //   oauth_token, oauth_token_secret, oauth_verifier})
     
-    const {oauth_access_token, oauth_access_token_secret} = results
-    access_tokens[oauth_token] = { ...access_tokens[oauth_token], oauth_access_token, oauth_access_token_secret };
-    // console.log(results)
-    // console.log(access_tokens)
-    res.send(results)
+    // const {oauth_access_token, oauth_access_token_secret} = results
+    // access_tokens[oauth_token] = { ...access_tokens[oauth_token], oauth_access_token, oauth_access_token_secret };
+
     
-  } catch (error) {
-    console.log(error)
-  }
-})
+    const client = new TwitterApi({
+      appKey: CONSUMER_KEY,
+      appSecret: CONSUMER_SECRET,
+      accessToken: oauth_token,
+      accessSecret: oauth_token_secret,
+    })
+    console.log("Login starts: ")
+    // https://github.com/PLhery/node-twitter-api-v2/blob/master/src/client/readonly.ts
+    client.login(oauth_verifier).then((response) => {
+      // loggedClient is an authenticated client in behalf of some user
+      // Store accessToken & accessSecret somewhere
+      console.log("logged in done")
+      const oauth_access_token = response.accessToken
+      const oauth_access_token_secret = response.accessSecret
+      access_tokens[oauth_token] = { ...access_tokens[oauth_token], oauth_access_token, oauth_access_token_secret };
+      loggedInClient = response.client
+      res.json({id: response.userId})
+    })
+    .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
+  })
 
 app.post('/api/twitter/logout', (req, res) =>{
   access_tokens = {}
@@ -142,6 +158,17 @@ app.get('/api/twitter/followings', async (req, res) =>{
 const OAuth = require('oauth-1.0a');
 const crypto = require('crypto');
 
+
+app.get('/api/twitter/temp/profile', async (req, res) =>{
+  try {
+    const ids = req.query.ids
+    console.log("ids "+ids)
+    const user = await loggedInClient.v2.users(ids)
+    console.log(user)
+  } catch (error) {
+    console.log(error)
+  }
+})
 
 // app.get('/api/twitter/temp/profile', async (req, res) => {
 //     try {

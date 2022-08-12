@@ -16,7 +16,8 @@
     "express": "^4.18.1",
     "mashape-oauth": "^0.1.71",
     "oauth": "^0.9.15",
-    "oauth-1.0a": "^2.2.6"
+    "oauth-1.0a": "^2.2.6",
+    "twitter-api-v2": "^1.12.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.19"

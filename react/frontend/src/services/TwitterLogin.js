@@ -40,7 +40,7 @@ const TwitterLogin = () =>{
                         // return axios.get("http://localhost:3001/api/twitter/profile")
                         return axios.get("http://localhost:3001/api/twitter/temp/profile",{
                             params: {
-                                ids: response.data.results.user_id
+                                ids: response.data.id
                             }
                         })
                     })
@@ -53,7 +53,7 @@ const TwitterLogin = () =>{
 
             }
         })()
-    })
+    }, [])
 
     const login = async () =>{
         axios.post("http://localhost:3001/api/oauth/request")

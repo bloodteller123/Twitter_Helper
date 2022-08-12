@@ -13,7 +13,7 @@ module.exports = () => {
     const callback_url = "http://www.localhost:3000/";
     const { CONSUMER_KEY,CONSUMER_SECRET } = require('./Config');
     const axios = require('axios');
-    const METHODS = require('./MENUMS')
+    // const METHODS = require('./MENUMS')
 
     const oa = new OAuth(
         post_request_url,
