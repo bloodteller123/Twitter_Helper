@@ -159,16 +159,16 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
 
       // while(!is_older_24hrs){
 
-      let payload = { 
+      let params = { 
         include_entities: true,
         count: 2,
         include_rts: true,
       }
       if(string_id)
-        payload.max_id = string_id;
-        console.log("max_id: ", payload.max_id)
+        params.max_id = string_id;
+        console.log("max_id: ", params.max_id)
       // console.log(string_id);
-      const response = await loggedInClient.v1.userTimeline(id, payload);
+      const response = await loggedInClient.v1.userTimeline(id, params);
 
       const fetchedTweets = response.tweets;
       let tweets = fetchedTweets.filter(tweet => {
@@ -195,6 +195,20 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
    } catch (error) {
     console.log(error)
    }
+})
+
+
+
+app.get('/api/twitter/users/search' , async(req, res) =>{
+  const user_query = req.query.user
+  console.log(user_query)
+  const params = {
+    page:1,
+    count: 3,
+    include_entities: false
+  }
+  const foundUsers = await loggedInClient.v1.searchUsers(user_query, params);
+  res.status(200).send(foundUsers._realData)
 })
 
 const PORT = 3001

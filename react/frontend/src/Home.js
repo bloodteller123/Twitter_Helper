@@ -3,8 +3,11 @@ import React, {useState, useEffect, useCallback} from "react";
 import axios from 'axios'
 import TwitterLogin from './services/TwitterLogin';
 import Tweets from "./services/Tweets";
+import SearchComp from "./services/SearchComp";
+
 import qs from 'qs';
 import 'semantic-ui-css/semantic.min.css';
+import _ from 'lodash';
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
@@ -26,11 +29,12 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
+  Search
 } from "semantic-ui-react";
 
 const styles = {
     body:{
-        marginTop:50
+        marginTop:100
     }
 }
 
@@ -41,7 +45,6 @@ const Home = () =>{
     const[tweets, setTweets] = useState(JSON.parse(window.localStorage.getItem('tweets')) || [])
 
     const [isEnd, setisEnd] = useState(false)
-
 
     const [followings, setFollowings] = useState(JSON.parse(window.localStorage.getItem('followings')) || [
         {
@@ -95,7 +98,7 @@ const Home = () =>{
             f.id === a2[i].id &&
             f.title === a2[i].title)
     )
-    const getTweet = async ()=>{
+    const getTweet = useCallback(async ()=>{
 
         console.log("getTweet")
 
@@ -155,7 +158,7 @@ const Home = () =>{
 
         setFollowings(followings.map((i,j) => ({id: i.id, str_id: str_ids_res[j]})))
 
-    }
+    },[])
 
 
     const logout_helper = async ()=>{
@@ -171,7 +174,7 @@ const Home = () =>{
             getTweet()
         }
     }
-    
+
     return (
         <div className="Home">
           <Grid padded className="tablet computer only">
@@ -181,7 +184,9 @@ const Home = () =>{
               </Menu.Item>
               <Menu.Menu position="right">
                 <Menu.Item>
-                  <Input placeholder="Search..." size="small" />
+                    <div>
+                        <SearchComp loggedIn={loggedIn}/>
+                    </div>
                 </Menu.Item>
                 <Menu.Item as="a">Dashboard</Menu.Item>
                 <Menu.Item as="a">Settings</Menu.Item>
@@ -243,7 +248,7 @@ const Home = () =>{
                                         next={handleScrolling}
                                         hasMore={!isEnd}
                                         loader={<div className="ui active centered inline loader"></div>}
-                                        scrollThreshold={1}
+                                        scrollThreshold={0.8}
                                         // height does the trick????
                                         height={300}
                                         endMessage={
