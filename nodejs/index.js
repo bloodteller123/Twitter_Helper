@@ -3,9 +3,12 @@
 
 const express = require('express')
 const cors = require('cors')
+const { default: axios } = require('axios')
 const app = express()
 
 const oauth = require('./services/oauth')()
+const METHODS = require('./services/MENUMS')
+const {CONSUMER_KEY, CONSUMER_SECRET } = require('./services/Config.js')
 
 app.use(express.json())
 app.use(cors())
@@ -13,6 +16,9 @@ app.use(cors())
 // https://stackoverflow.com/questions/60495981/twitter-log-in-with-localhost
 
 let access_tokens = {}
+
+// tmp solution
+let tmp_token
 
 // placeholders data
 const all_followings = [
@@ -57,6 +63,26 @@ app.get('/', (req, res) =>{
     res.send('<h1>Hello</h1>')
 })
 
+// app.get('/api/twitter/temp/profile', async (req, res) =>{
+//   const { oauth_access_token, oauth_access_token_secret } = access_tokens[tmp_token]; 
+//   try {
+//     // const ids = req.query.ids.join()
+//     const ids = req.query.ids
+//     console.log("ids "+ids)
+//     console.log(oauth_access_token, oauth_access_token_secret)
+//     const response = await oauth.sendRequest({
+//       method: 'get',
+//       url: `https://api.twitter.com/2/users?ids=${ids}`,
+//       oauth_access_token,
+//       oauth_access_token_secret
+//     })
+//     console,log(response)
+//     res.json({message: 'ok'})
+//   } catch (error) {
+//     console.log(error)
+//   }
+// })
+
 app.post('/api/oauth/request', async (req,res) =>{
     // console.log(req)
     console.log("hello")
@@ -65,7 +91,7 @@ app.post('/api/oauth/request', async (req,res) =>{
       console.log(results)
       const {oauth_token, oauth_token_secret} = results
       access_tokens[oauth_token] = oauth_token_secret
-      console.log(oauth_token)
+      console.log('Oauth_token ' + oauth_token)
       res.json({oauth_token: oauth_token})
     } catch (error) {
       console.log(error)
@@ -76,11 +102,18 @@ app.post('/api/oauth/request', async (req,res) =>{
 app.post('/api/oauth/access', async (req, res) =>{
   try {
     const {oauth_verifier,oauth_token} = req.body
+    tmp_token = oauth_token
     // console.log(access_tokens[oauth_token])
     oauth_token_secret = access_tokens[oauth_token]
     const results = await oauth.getOAuthAccess({
       oauth_token, oauth_token_secret, oauth_verifier})
-    console.log(results)
+    
+    const {oauth_access_token, oauth_access_token_secret} = results
+    access_tokens[oauth_token] = { ...access_tokens[oauth_token], oauth_access_token, oauth_access_token_secret };
+    // console.log(results)
+    // console.log(access_tokens)
+    res.send(results)
+    
   } catch (error) {
     console.log(error)
   }
@@ -90,6 +123,88 @@ app.post('/api/twitter/logout', (req, res) =>{
   access_tokens = {}
   res.status(200).send("LOG OUT")
 })
+
+
+
+app.get('/api/twitter/followings', async (req, res) =>{
+    const { oauth_token} = req.body
+    const oauth_token_secret = access_tokens[oauth_token]
+    const url = "https://api.twitter.com/2/users/by/username/${}"
+    const responses = await oauth.sendRequest({method: 'get', url, oauth_token, oauth_token_secret})
+    console.log(responses)
+    res.send("OK")
+})
+
+
+
+
+
+const OAuth = require('oauth-1.0a');
+const crypto = require('crypto');
+
+
+// app.get('/api/twitter/temp/profile', async (req, res) => {
+//     try {
+//         const oauth = OAuth({
+//             consumer: {
+//                 key: CONSUMER_KEY,
+//                 secret: CONSUMER_SECRET
+//             },
+//             signature_method: 'HMAC-SHA1',
+//             hash_function: (baseString, key) => crypto.createHmac('sha1', key).update(baseString).digest('base64')
+//         });
+
+//         const token = {
+//             key: '',
+//             secret: ''
+//         };
+
+//         const ids = req.query.ids
+//         const { oauth_access_token, oauth_access_token_secret } = access_tokens[tmp_token]; 
+
+//         console.log("ids "+ids)
+//         console.log(oauth_access_token, oauth_access_token_secret)
+
+//         const authHeader = oauth.toHeader(oauth.authorize({
+//             url: `https://api.twitter.com/2/users?ids=${ids}`,
+//             method: 'GET'
+//         }, token));
+
+
+
+
+//         const response = await axios.get(`https://api.twitter.com/2/users?ids=${ids}`,
+//             {
+//                 headers: {
+//                     Authorization: authHeader["Authorization"]
+//                 }
+//             }
+//         );
+//         console.log(response)
+//         res.status(201).send({ message: "Tweet successful" });
+//     } catch (error) {
+//         console.log("error", error)
+//         res.status(403).send({ message: "Missing, invalid, or expired tokens" });
+//     }
+// });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const PORT = 3001
 app.listen(PORT, ()=>{console.log(`listen on port ${PORT}`)})

@@ -1,7 +1,7 @@
 import React from "react";
 // import { CONSUMER_KEY, CONSUMER_SECRET } from "../../../../nodejs/services/Config";
 import axios from 'axios'
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 
@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 
 const TwitterLogin = () =>{
     // const navigate = useNavigate();
+    const [loggedIn, setLoggedIn] = useState(false)
+
     useEffect (() =>{
         // console.log("UseEffect")
         // https://stackoverflow.com/questions/53332321/react-hook-warnings-for-async-function-in-useeffect-useeffect-function-must-ret
@@ -33,6 +35,17 @@ const TwitterLogin = () =>{
                     axios.post("http://localhost:3001/api/oauth/access", payload)
                     .then((response) =>{
                         console.log(response)
+                        console.log("second axios")
+                        // console.log(response)
+                        // return axios.get("http://localhost:3001/api/twitter/profile")
+                        return axios.get("http://localhost:3001/api/twitter/temp/profile",{
+                            params: {
+                                ids: response.data.results.user_id
+                            }
+                        })
+                    })
+                    .then((response) =>{
+                        console.log(10)
                     })
                 } catch (error) {
                     console.log(error)
@@ -46,7 +59,7 @@ const TwitterLogin = () =>{
         axios.post("http://localhost:3001/api/oauth/request")
         .then((response)=>{
             console.log(response)
-            window.location = `https://api.twitter.com/oauth/authenticate?`
+            window.location = `https://api.twitter.com/oauth/authorize?`
                                     +`oauth_token=${response.data.oauth_token}`
             return response
         })
@@ -57,13 +70,12 @@ const TwitterLogin = () =>{
         axios.post("http://localhost:3001/api/twitter/logout")
         .then((response) =>{
             console.log(response.data)
+            setLoggedIn(false)
+            window.location ="http://localhost:3000"
         })
     }
 
 
-    const callback = (err, data)=>{
-        console.log(data)
-    }
 
 
     return (
