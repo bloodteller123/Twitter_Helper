@@ -1,7 +1,8 @@
-import _ from 'lodash'
 import React, {useState, useEffect, useCallback} from 'react'
 import axios from 'axios'
 import 'semantic-ui-css/semantic.min.css';
+import _ from 'lodash'
+
 
 import {
   Search,
@@ -26,7 +27,7 @@ const SearchComp = ({loggedIn}) =>{
   const [results, setResults] = useState([])
 
 
-  // const followings_list = useSelector(selectFollowings)
+  const followings_list = useSelector(selectFollowings)
   const dispatch = useDispatch()
 
       // https://css-tricks.com/debouncing-throttling-explained-examples/#aa-keypress-on-autocomplete-form-with-ajax-request
@@ -67,6 +68,7 @@ const SearchComp = ({loggedIn}) =>{
   const trimText = (text) =>{
     return text.length < 26 ? text : text.slice(0,26) + "..."
   }
+  
 
   const resultRenderer = (user) => {
     return (
@@ -87,7 +89,10 @@ const SearchComp = ({loggedIn}) =>{
           </Card.Content>
           <Card.Content extra>
             <Button.Group>
-              <Button id='follow_button' size='mini' color='twitter'>Follow</Button>
+              {(followings_list.filter(following => following.id_str === user.id_str).length===0)?
+              <Button id='follow_button' size='mini' color='twitter'>Follow</Button>:
+              <Button id='dummy' size='mini' color='green'>Followed</Button>
+              }
               <Button.Or />
               <Button id='remove_button' size='mini' color='grey'>Remove</Button>
             </Button.Group>
@@ -104,20 +109,21 @@ const SearchComp = ({loggedIn}) =>{
         placeholder='Search...'
         size = "small"
         onResultSelect={(e, data) =>{
+          const user = data.result
           switch(e.target.id){
             case "follow_button":
-              const user = data.result
+              console.log("add following")
               dispatch(addFollowing({user}))
               break
             case "remove_button":
               // should we check if this user is in followings list? 
               console.log('remove')
+              dispatch(removeFollowing({user}))
               break
             default:
               console.log('')
+            }    
           }
-              
-            }
         }
         onSearchChange={handleSearchChange}
         results = {results}

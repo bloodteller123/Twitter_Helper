@@ -7,56 +7,60 @@ import SearchComp from "./services/SearchComp";
 
 import qs from 'qs';
 import 'semantic-ui-css/semantic.min.css';
+import Followings from './services/Followings';
 import _ from 'lodash';
+
+import { useSelector, useDispatch } from 'react-redux';
+
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-// import InfiniteScroll from 'react-infinite-scroller';
-
-
 
 import {
-  Button,
   Divider,
   Grid,
   Header,
-  Icon,
-  Input,
-  Image,
-  Label,
   Menu,
-  Table,
   Dropdown,
   DropdownMenu,
   DropdownItem,
-  Search
 } from "semantic-ui-react";
 
-const styles = {
-    body:{
-        marginTop:100
-    }
-}
+import{
+    selectFollowings
+  } from "./reducers/FollowingsSlice";
 
 
 const Home = () =>{
+    const followings_list = useSelector(selectFollowings)
+
     const [loggedIn, setLogin] = useState(false)
-    const[user, setUser] = useState([])
+    // const[user, setUser] = useState([])
+    const [newUser, setNewuser] = useState(true)
+
     const[tweets, setTweets] = useState(JSON.parse(window.localStorage.getItem('tweets')) || [])
 
     const [isEnd, setisEnd] = useState(false)
 
-    const [followings, setFollowings] = useState(JSON.parse(window.localStorage.getItem('followings')) || [
+    const [followings_lst_str, setFollowings_lst_str] = useState(JSON.parse(window.localStorage.getItem('followings')) || [])
+
+    const dummy = [
         {
-            id: '295218901',
-            
+            id: '9029269414134538241',
+            full_text: 'Example text1',
+            imgurl: 'https://pbs.twimg.com/profile_images/1542550265013739520/R5l2K97l_normal.jpg',
+            screen_name: 'example screen_name 1',
+            name: 'example name 1'
         },
         {
-            id: "902926941413453824"
+            id: '9029269414134538242',
+            full_text: 'Example text 2',
+            imgurl: 'https://pbs.twimg.com/profile_images/1426627919951114250/hJuvHByO_normal.jpg',
+            screen_name: 'example screen_name 2',
+            name: 'example name 2'
         }
-    ])
+    ]
 
-    // const [fetch, setFetch] = useState(false)
 
     const login = (val) =>{
         setLogin(val)
@@ -73,14 +77,31 @@ const Home = () =>{
         console.log("State Changed")
         console.log('LoggedIn State: ',loggedIn)
         console.log(tweets)
-        if(loggedIn && tweets.length==0){
+        if(loggedIn && tweets.length==0 ){
             console.log('load first batch')
+            console.log("or add dummy followings if it's empty")
+            // cz
+            if(newUser || followings_list.length==0) {
+                setTweets([...dummy])
+                return;
+            }
             getTweet();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loggedIn])
 
+    useEffect(() =>{
+        console.log('followings_list changed')
+        const arr = followings_list.map((i,j) => {
+            const obj = {id: i.id, str_id: followings_lst_str[j]?.str_id}
+            console.log(obj)
+            return obj
+        })
+        console.log(arr)
+        setFollowings_lst_str(arr)
+        getTweet()
 
+    }, [followings_list])
 
     // useEffect(() =>{
     //     setTweets(JSON.parse(window.localStorage.getItem('tweets')));
@@ -88,8 +109,9 @@ const Home = () =>{
     // }, [])
     useEffect(()=>{
         window.localStorage.setItem('tweets', JSON.stringify(tweets));
-        window.localStorage.setItem('followings', JSON.stringify(followings));
-    }, [tweets, followings])
+        window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
+        window.localStorage.setItem('followings', JSON.stringify(followings_list));
+    }, [tweets, followings_lst_str, followings_list])
 
     const arrayIsEqual = (a1, a2) => 
         a1 === a2 ||
@@ -99,13 +121,15 @@ const Home = () =>{
             f.title === a2[i].title)
     )
     const getTweet = useCallback(async ()=>{
-
+        console.log(followings_list)
         console.log("getTweet")
+
+        // const empty = dummy.length===0
 
         const res = await axios.get("http://localhost:3001/api/twitter/id/tweet",{
             params: {
-                ids: followings.map(i => i.id),
-                str_ids: followings.map(i => i.str_id)
+                ids: followings_list.map(i => i.id),
+                str_ids: followings_list.map(i => i.str_id)
               },
               paramsSerializer: params => {
                 return qs.stringify(params)
@@ -156,7 +180,7 @@ const Home = () =>{
             setisEnd(true)
         }
 
-        setFollowings(followings.map((i,j) => ({id: i.id, str_id: str_ids_res[j]})))
+        setFollowings_lst_str(followings_lst_str.map((i,j) => ({id: i.id, str_id: str_ids_res[j]})))
 
     },[])
 
@@ -175,6 +199,12 @@ const Home = () =>{
         }
     }
 
+    const styles = {
+        body:{
+            marginTop:100
+        }
+    }
+    
     return (
         <div className="Home">
           <Grid padded className="tablet computer only">
@@ -242,7 +272,7 @@ const Home = () =>{
 
                         {/* https://semantic-ui.com/collections/grid.html#/definition */}
                             <div className="twelve wide column">
-                            <div id="scrollableDiv" style={{ height: 300, overflow: "auto" }}>
+                                <div id="scrollableDiv" style={{ height: 300, overflow: "auto" }}>
                                         <InfiniteScroll
                                         dataLength={tweets.length}
                                         next={handleScrolling}
@@ -259,6 +289,7 @@ const Home = () =>{
                                         {<Tweets tweets = {tweets}/>}
                                         </InfiniteScroll>
                                 </div>
+                                {/* <Followings/> */}
                             </div>
                             <div className="four wide column">
                             </div>
