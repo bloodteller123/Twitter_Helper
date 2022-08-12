@@ -57,33 +57,9 @@ app.get('/followings', (req, res) =>{
     }
 })
 
-app.get('/followings/:userName', (req,res) =>{
-
-})
-
 app.get('/', (req, res) =>{
     res.send('<h1>Hello</h1>')
 })
-
-// app.get('/api/twitter/temp/profile', async (req, res) =>{
-//   const { oauth_access_token, oauth_access_token_secret } = access_tokens[tmp_token]; 
-//   try {
-//     // const ids = req.query.ids.join()
-//     const ids = req.query.ids
-//     console.log("ids "+ids)
-//     console.log(oauth_access_token, oauth_access_token_secret)
-//     const response = await oauth.sendRequest({
-//       method: 'get',
-//       url: `https://api.twitter.com/2/users?ids=${ids}`,
-//       oauth_access_token,
-//       oauth_access_token_secret
-//     })
-//     console,log(response)
-//     res.json({message: 'ok'})
-//   } catch (error) {
-//     console.log(error)
-//   }
-// })
 
 app.post('/api/oauth/request', async (req,res) =>{
     // console.log(req)
@@ -131,8 +107,7 @@ app.post('/api/oauth/access', async (req, res) =>{
       access_tokens[oauth_token] = { ...access_tokens[oauth_token], oauth_access_token, oauth_access_token_secret };
       loggedInClient = response.client
       res.json({id: response.userId})
-    })
-    .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
+    }).catch(() => res.status(403).send('Invalid verifier or access tokens!'));
   })
 
 app.post('/api/twitter/logout', (req, res) =>{
@@ -165,85 +140,11 @@ app.get('/api/twitter/temp/profile', async (req, res) =>{
     console.log("ids "+ids)
     const user = await loggedInClient.v2.users(ids)
     console.log(user)
+    res.json({user})
   } catch (error) {
     console.log(error)
   }
 })
 
-// app.get('/api/twitter/temp/profile', async (req, res) => {
-//     try {
-//         const oauth = OAuth({
-//             consumer: {
-//                 key: CONSUMER_KEY,
-//                 secret: CONSUMER_SECRET
-//             },
-//             signature_method: 'HMAC-SHA1',
-//             hash_function: (baseString, key) => crypto.createHmac('sha1', key).update(baseString).digest('base64')
-//         });
-
-//         const token = {
-//             key: '',
-//             secret: ''
-//         };
-
-//         const ids = req.query.ids
-//         const { oauth_access_token, oauth_access_token_secret } = access_tokens[tmp_token]; 
-
-//         console.log("ids "+ids)
-//         console.log(oauth_access_token, oauth_access_token_secret)
-
-//         const authHeader = oauth.toHeader(oauth.authorize({
-//             url: `https://api.twitter.com/2/users?ids=${ids}`,
-//             method: 'GET'
-//         }, token));
-
-
-
-
-//         const response = await axios.get(`https://api.twitter.com/2/users?ids=${ids}`,
-//             {
-//                 headers: {
-//                     Authorization: authHeader["Authorization"]
-//                 }
-//             }
-//         );
-//         console.log(response)
-//         res.status(201).send({ message: "Tweet successful" });
-//     } catch (error) {
-//         console.log("error", error)
-//         res.status(403).send({ message: "Missing, invalid, or expired tokens" });
-//     }
-// });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const PORT = 3001
 app.listen(PORT, ()=>{console.log(`listen on port ${PORT}`)})
-
-// const express = require('express')
-// const app = express()
-// const port = 3001
-
-// app.get('/', (req, res) => {
-//   res.send('Hello World!')
-// })
-
-// app.listen(port, () => {
-//   console.log(`Example app listening on port ${port}`)
-// })
