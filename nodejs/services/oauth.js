@@ -1,7 +1,7 @@
 const { resolve } = require('path');
 
 // https://stackoverflow.com/questions/39599514/vs-code-add-a-new-file-under-the-selected-working-directory
-https://stackoverflow.com/questions/8595509/how-do-you-share-constants-in-nodejs-modules
+// https://stackoverflow.com/questions/8595509/how-do-you-share-constants-in-nodejs-modules
 
 
 module.exports = () => {

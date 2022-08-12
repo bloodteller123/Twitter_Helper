@@ -12,11 +12,13 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.27.2",
+    "big-integer": "^1.6.51",
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "mashape-oauth": "^0.1.71",
     "oauth": "^0.9.15",
     "oauth-1.0a": "^2.2.6",
+    "qs": "^6.11.0",
     "twitter-api-v2": "^1.12.3"
   },
   "devDependencies": {

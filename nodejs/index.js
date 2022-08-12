@@ -2,13 +2,14 @@
 const express = require('express')
 const cors = require('cors')
 const { default: axios } = require('axios')
+const qs = require('qs')
 const app = express()
 
 const oauth = require('./services/oauth')()
 // const METHODS = require('./services/MENUMS')
 const {CONSUMER_KEY, CONSUMER_SECRET } = require('./services/Config.js')
 const {TwitterApi} = require('twitter-api-v2')
-
+const bigInt = require("big-integer");
 
 app.use(express.json())
 app.use(cors())
@@ -20,27 +21,7 @@ let access_tokens = {}
 // tmp solution
 let tmp_token
 
-let loggedInClient
-
-// placeholders data
-const all_followings = [
-    {
-        name: 'ABC zxc',
-        id: 123455,
-        userName: "someNames_1"
-    },
-    {
-        name: 'QWE asd',
-        id: 413354,
-        userName: "someNames_2"
-    },
-    {
-        name: 'BVX iop',
-        id: 634231,
-        userName: "someNames_3"
-    }
-]
-
+let loggedInClient = null
 
 
 //  get a list of all followings in the current account
@@ -99,7 +80,7 @@ app.post('/api/oauth/access', async (req, res) =>{
     console.log("Login starts: ")
     // https://github.com/PLhery/node-twitter-api-v2/blob/master/src/client/readonly.ts
     client.login(oauth_verifier).then((response) => {
-      // loggedClient is an authenticated client in behalf of some user
+      // loggedClient is an authenticated client on behalf of some user
       // Store accessToken & accessSecret somewhere
       console.log("logged in done")
       const oauth_access_token = response.accessToken
@@ -127,13 +108,6 @@ app.get('/api/twitter/followings', async (req, res) =>{
 })
 
 
-
-
-
-const OAuth = require('oauth-1.0a');
-const crypto = require('crypto');
-
-
 app.get('/api/twitter/temp/profile', async (req, res) =>{
   try {
     const ids = req.query.ids
@@ -144,6 +118,73 @@ app.get('/api/twitter/temp/profile', async (req, res) =>{
   } catch (error) {
     console.log(error)
   }
+})
+
+app.get('/api/twitter/user', async(req,res)=>{
+  try {
+    const userName = req.query.username
+    console.log('User name ' + userName)
+    // console.log(loggedInClient===undefined)
+    // console.log(loggedInClient)
+    const response = await loggedInClient.v2.userByUsername(userName)
+    console.log(response)
+    console.log(response.data)
+    res.json({id:response.data.id })
+  } catch (error) {
+    console.log(error)
+  }
+
+})
+
+app.get('/api/twitter/id/tweet', async (req, res) =>{
+   try {
+    console.log(req.query)
+    const ids = req.query.ids
+    // console.log('ID '+id)
+    let all_tweets = []
+    // each id = one user
+    for (const id of ids){
+      // https://github.com/PLhery/node-twitter-api-v2/blob/429c93d982cb460cb690a7239358fcbf175968d3/src/types/v1/tweet.v1.types.ts#L82
+      let is_older_24hrs = false;
+      let string_id
+
+      while(!is_older_24hrs){
+
+        let payload = { 
+          include_entities: true,
+          count: 20,
+          include_rts: true,
+        }
+        if(string_id)
+          payload.max_id = string_id;
+          console.log(payload.max_id)
+        // console.log(string_id);
+        const response = await loggedInClient.v1.userTimeline(id, payload);
+
+        const fetchedTweets = response.tweets;
+        let tweets = fetchedTweets.filter(tweet => {
+          const diff = Date.now() - Date.parse(tweet.created_at);
+          if(diff < 8.76e7) return tweet
+        })
+
+        // next fetch will start from (string_id -1) to avoid duplicate entries
+        string_id = tweets.length!=0? bigInt(tweets[tweets.length-1].id_str).minus(1).toString():"";
+
+        if(tweets.length != fetchedTweets.length){
+          is_older_24hrs=true
+          string_id = undefined
+        }
+        all_tweets.push(...tweets);
+      }
+
+      console.log(all_tweets.length)
+      // console.log(all_tweets)
+      res.status(200).send(all_tweets);
+    }
+    
+   } catch (error) {
+    console.log(error)
+   }
 })
 
 const PORT = 3001
