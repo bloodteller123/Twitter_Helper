@@ -11,3 +11,5 @@
 1. oauth implementations are from [this library](https://github.com/ciaranj/node-oauth/blob/master/lib/oauth.js)
 
 2. Add router feature
+
+3. Add a dropdown so users can select if they want to see the most recent 24 hrs, 48 hrs etc tweets from the followings, instead of the 24 hrs by default
