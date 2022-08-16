@@ -15,6 +15,8 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
+import './CSS/SemanticUI.scss';
+
 
 import {
   Divider,
@@ -24,15 +26,20 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
+  Button
 } from "semantic-ui-react";
 
 import{
-    selectFollowings
+    addFollowing,
+    removeFollowing,
+    selectFollowings,
+    addFollowingBulk
   } from "./reducers/FollowingsSlice";
 
 
 const Home = () =>{
     const followings_list = useSelector(selectFollowings)
+    const dispatch = useDispatch()
 
     const [loggedIn, setLogin] = useState(false)
     // const[user, setUser] = useState([])
@@ -44,6 +51,7 @@ const Home = () =>{
 
     const [followings_lst_str, setFollowings_lst_str] = useState(JSON.parse(window.localStorage.getItem('followings')) || [])
 
+    const [timeframe, setTimeframe] = useState(JSON.parse(window.localStorage.getItem('timeframe')) || 1)
     const dummy = [
         {
             id: '9029269414134538241',
@@ -73,45 +81,95 @@ const Home = () =>{
     }
 
     useEffect(() =>{
-        
-        console.log("State Changed")
-        console.log('LoggedIn State: ',loggedIn)
-        console.log(tweets)
-        if(loggedIn && tweets.length==0 ){
-            console.log('load first batch')
-            console.log("or add dummy followings if it's empty")
-            // cz
-            if(newUser || followings_list.length==0) {
-                setTweets([...dummy])
-                return;
-            }
-            getTweet();
-        }
+    
+        (async () => {
+            console.log("State Changed")
+            console.log('LoggedIn State: ',loggedIn)
+            console.log(tweets)
+            if(loggedIn && tweets.length==0 ){
+                console.log('load first batch')
+                console.log("or add dummy followings if it's empty")
+                // cz
+                if(newUser || followings_list.length==0) {
+                    // setTweets([...dummy])
+                    // return;
+                    // https://stackoverflow.com/questions/52993463/how-to-promise-all-for-nested-arrays
+                    // https://stackoverflow.com/questions/57066137/axios-requests-in-parallel
+                    console.log('new user')
+                    const first_two_followings = await axios.get("http://localhost:3001/api/twitter/user/following", {
+                        params:{
+                            id: '1422773305254334464'
+                        }
+                    })
+                    console.log(first_two_followings)
+
+                    const tasks = first_two_followings.data.map(async(following) =>{
+                        const axiosCalls = [
+                            axios.get("http://localhost:3001/api/twitter/id/tweet", {
+                                params: {
+                                    ids: [following.id],
+                                    str_ids: [following.str_id],
+                                    timefame: timeframe
+                                },
+                                paramsSerializer: params => {
+                                    return qs.stringify(params)
+                                }
+                            }), 
+                            axios.get("http://localhost:3001/api/twitter/users/search", {
+                                params: {
+                                    userName: following.username
+                                }
+                            })
+                    ] 
+                        return Promise.all(axiosCalls).then(response => {
+                            const [initial_tweets, iniital_following] = response
+                            // returning the first result (exact match) from search
+                            const first_result = iniital_following.data[0]
+                            const first_tweets = initial_tweets.data
+                            return {first_tweets, iniital_following:first_result}
+                          });
+                    })
+
+                    Promise.all(tasks).then( res => {
+                        
+                        console.log(res); 
+                        const iniital_followings = res.map(obj => obj.iniital_following)
+                        // const initial_tweets = res.map(obj => obj.first_tweets)
+                        dispatch(addFollowingBulk({iniital_followings}))
+                        
+                        // getTweet();
+                      });
+
+                }
+                
+        }})()
+            
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loggedIn])
 
     useEffect(() =>{
-        console.log('followings_list changed')
-        const arr = followings_list.map((i,j) => {
-            const obj = {id: i.id, str_id: followings_lst_str[j]?.str_id}
-            console.log(obj)
-            return obj
-        })
-        console.log(arr)
-        setFollowings_lst_str(arr)
-        getTweet()
-
+        if(loggedIn){
+            // need to handle the case when some usrs are removed from the list
+            // remove their tweets etc.
+            console.log('followings_list changed')
+            const arr = followings_list.map((i,j) => {
+                const obj = {id: i.id, str_id: followings_lst_str[j]?.str_id}
+                console.log(obj)
+                return obj
+            })
+            console.log(arr)
+            // setFollowings_lst_str(arr)
+            getTweet()
+        }
     }, [followings_list])
 
-    // useEffect(() =>{
-    //     setTweets(JSON.parse(window.localStorage.getItem('tweets')));
-    //     setTweets(JSON.parse(window.localStorage.getItem('followings')));
-    // }, [])
+    // save states to localstorage
     useEffect(()=>{
         window.localStorage.setItem('tweets', JSON.stringify(tweets));
         window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
         window.localStorage.setItem('followings', JSON.stringify(followings_list));
-    }, [tweets, followings_lst_str, followings_list])
+        window.localStorage.setItem('timeframe', JSON.stringify(timeframe));
+    }, [tweets, followings_lst_str, followings_list, timeframe])
 
     const arrayIsEqual = (a1, a2) => 
         a1 === a2 ||
@@ -120,69 +178,73 @@ const Home = () =>{
             f.id === a2[i].id &&
             f.title === a2[i].title)
     )
+
+    // with useCallback, getTweet() will re-render whenever followings_list is updated...
     const getTweet = useCallback(async ()=>{
-        console.log(followings_list)
-        console.log("getTweet")
+        if(loggedIn){
+            console.log(followings_list)
+            console.log("getTweet")
 
-        // const empty = dummy.length===0
+            // const empty = dummy.length===0
 
-        const res = await axios.get("http://localhost:3001/api/twitter/id/tweet",{
-            params: {
-                ids: followings_list.map(i => i.id),
-                str_ids: followings_list.map(i => i.str_id)
-              },
-              paramsSerializer: params => {
-                return qs.stringify(params)
-              }
-        });
-        // console.log(res)
-        console.log(res.data.length)
-        console.log(res.data)
-        console.log(res.data[0])
-        let str_ids_res = res.data.map(i => i.string_id)
-        let tweets_res = res.data.map(i => i.tweets)
-        console.log(tweets_res)
-
-        const filtered_res = tweets_res.map((res) =>{
-            return res.map(arr =>{
-                console.log(arr)
-                const id = arr.id_str
-                const full_text = arr.full_text
-                const imgurl = arr.user.profile_image_url_https
-                const screen_name = arr.user.screen_name
-                const name = arr.user.name
-
-                return {
-                    id,
-                    full_text,
-                    imgurl,
-                    screen_name,
-                    name
+            const res = await axios.get("http://localhost:3001/api/twitter/id/tweet",{
+                params: {
+                    ids: followings_list.map(i => i.id_str),
+                    tweet_str_ids: followings_list.map(i => i.tweet_str_ids),
+                    timefame: timeframe
+                },
+                paramsSerializer: params => {
+                    return qs.stringify(params)
                 }
+            });
+            // console.log(res)
+            console.log(res.data.length)
+            console.log(res.data)
+            console.log(res.data[0])
+            let str_ids_res = res.data.map(i => i.string_id)
+            let tweets_res = res.data.map(i => i.tweets)
+            console.log(tweets_res)
+
+            const filtered_res = tweets_res.map((res) =>{
+                return res.map(arr =>{
+                    console.log(arr)
+                    const id = arr.id_str
+                    const full_text = arr.full_text
+                    const imgurl = arr.user.profile_image_url_https
+                    const screen_name = arr.user.screen_name
+                    const name = arr.user.name
+
+                    return {
+                        id,
+                        full_text,
+                        imgurl,
+                        screen_name,
+                        name
+                    }
+                })
+                    
             })
-                
-        })
-        // console.log(filtered_res)
-//https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
-        const concat_arr = filtered_res.flat() 
+            // console.log(filtered_res)
+    //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
+            const concat_arr = filtered_res.flat() 
 
-        console.log(concat_arr)
+            console.log(concat_arr)
 
-        /* eslint eqeqeq: 0 */
-        if(!arrayIsEqual(concat_arr,tweets)){
-            console.log("Not equal")
-            // append arrays to a array state
-            // https://stackoverflow.com/questions/70690542/react-js-how-to-properly-append-multiple-items-to-an-array-state-using-its-use
-            setTweets((prevTweets) => prevTweets.concat([...concat_arr]))
+            /* eslint eqeqeq: 0 */
+            if(!arrayIsEqual(concat_arr,tweets)){
+                console.log("Not equal")
+                // append arrays to a array state
+                // https://stackoverflow.com/questions/70690542/react-js-how-to-properly-append-multiple-items-to-an-array-state-using-its-use
+                setTweets((prevTweets) => prevTweets.concat([...concat_arr]))
+            }
+            if(concat_arr.length==0){
+                console.log('End of fetch')
+                setisEnd(true)
+            }
+
+            setFollowings_lst_str(followings_lst_str.map((i,j) => ({id: i.id, tweet_str_ids: str_ids_res[j]})))
         }
-        if(concat_arr.length==0){
-            console.log('End of fetch')
-            setisEnd(true)
-        }
-
-        setFollowings_lst_str(followings_lst_str.map((i,j) => ({id: i.id, str_id: str_ids_res[j]})))
-
-    },[])
+    },[followings_list])
 
 
     const logout_helper = async ()=>{
@@ -195,6 +257,7 @@ const Home = () =>{
 
     const handleScrolling = () =>{
         if(!isEnd){
+            console.log('scrolling')
             getTweet()
         }
     }
@@ -204,7 +267,35 @@ const Home = () =>{
             marginTop:100
         }
     }
+
+    const options = [
+        { key: 1, text: '24 hrs', value: 1 },
+        { key: 2, text: '48 hrs', value: 2 },
+        { key: 3, text: '72 hrs', value: 3 },
+        { key: 4, text: 'unlimited', value: 0 },
+      ]
+
+    const handleDropdown = (e, {value}) =>{
+        console.log(value)
+        setTimeframe(value)
+    }
+
+    useEffect(() =>{
+        console.log('time frame changed')
+        if(loggedIn){
+            console.log('calling getTweet')
+            getTweet()
+        }
+    }, [timeframe])
     
+    const test = () =>{
+        axios.get("http://localhost:3001/api/twitter/user/following", {
+            params:{
+                id:'1422773305254334464'
+            }
+        })
+    }
+
     return (
         <div className="Home">
           <Grid padded className="tablet computer only">
@@ -260,11 +351,23 @@ const Home = () =>{
                     id="content"
                     >
                     <Grid padded>
-                        <Grid.Row>
-                        <Header dividing size="huge" as="h1">
+                        <Grid.Row columns={2}>
+                        <Grid.Column>
+                        <Header floated="left" dividing size="huge" as="h1">
                             Dashboard
                         </Header>
-                        {/* <Button primary onClick={getTweet}>Get Tweet</Button> */}
+                        </Grid.Column>
+                        <Grid.Column >
+                        <Dropdown
+                            placeholder='24 hours'
+                            compact
+                            selection
+                            closeOnEscape
+                            options={options}
+                            onChange={handleDropdown}
+                        />
+                        </Grid.Column>
+                        <Button primary onClick={test}>Get Tweet</Button>
                         </Grid.Row>                        
                         <Grid.Row textAlign="center">
                         {/* <div class="ui two column centered grid"> */}

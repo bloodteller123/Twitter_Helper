@@ -19,7 +19,7 @@ import{
 
 import { useSelector, useDispatch } from 'react-redux';
 
-import '../CSS/SearchComp.scss';
+import '../CSS/SemanticUI.scss';
 
 
 const SearchComp = ({loggedIn}) =>{
@@ -35,11 +35,11 @@ const SearchComp = ({loggedIn}) =>{
       // https://css-tricks.com/debouncing-throttling-explained-examples/#aa-keypress-on-autocomplete-form-with-ajax-request
   const searchUsers = useCallback(_.debounce(async (val) => {
       console.log('call searchUsers')
-      if(val.length!=0){
+      if(val.length!==0){
           // console.log(value)
           const users = await axios.get("http://localhost:3001/api/twitter/users/search", {
               params: {
-                  user: val
+                  userName: val
               }
           })
           setResults(users.data)
@@ -107,19 +107,13 @@ const SearchComp = ({loggedIn}) =>{
 
   return (
 
-  //   <div class="ui search">
-  //     <div class="ui icon input">
-  //       <input class="prompt" type="text" placeholder="Search countries...">
-  //       <i class="search icon"></i>
-  //     </div>
-  //     <div class="results"></div>
-  // </div>
      <Search 
         loading={loading}
         placeholder='Search...'
         size = "small"
         onResultSelect={(e, data) =>{
           const user = data.result
+          console.log(user)
           switch(e.target.id){
             case "follow_button":
               console.log("add following")

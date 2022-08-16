@@ -15,6 +15,13 @@ const followingSlice = createSlice({
             if(state.followings_list.filter(f => f.id_str === user.id_str).length===0)
                 state.followings_list.push(user)
         },
+
+        addFollowingBulk(state, action){
+            const followings = action.payload.iniital_followings
+            state.followings_list = followings
+
+        },
+
         removeFollowing(state, action){
             const id = action.payload.user.id_str
             let filtered =  state.followings_list.filter(following => 
@@ -25,7 +32,7 @@ const followingSlice = createSlice({
     }
 })
 
-export const { addFollowing, removeFollowing} = followingSlice.actions
+export const { addFollowing, removeFollowing, addFollowingBulk} = followingSlice.actions
 
 // state.X where X should be conssitent with {reducer:{X: some reducer}} in configureStore ??
 export const selectFollowings = (state) => state.following.followings_list

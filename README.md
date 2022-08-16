@@ -13,3 +13,7 @@
 2. Add router feature
 
 3. Add a dropdown so users can select if they want to see the most recent 24 hrs, 48 hrs etc tweets from the followings, instead of the 24 hrs by default
+
+4. update reducers to allow modifying the state array (tweet_str_ids)
+
+5. sort tweets chronologically 
