@@ -139,74 +139,75 @@ app.get('/api/twitter/user', async(req,res)=>{
 
 app.get('/api/twitter/id/tweet', async (req, res) =>{
    try {
-    console.log('req.query: ', req.query)
-    const ids = req.query.ids
-    const str_ids = req.query.tweet_str_ids
-    let timeframe
-    switch(req.query.timeframe){
-      case 0:
-        timeframe = 0
-        break;
-      case 1:
-        timeframe = 8.76e7
-        break;
-      case 2:
-        timeframe = 7.752e8
-        break;
-      case 3:
-        timeframe = 3.504e8
-        break;
-      default:
-        timeframe = 8.76e7
-    }
+    if(loggedInClient){
+      console.log('req.query: ', req.query)
+      const ids = req.query.ids
+      const str_ids = req.query.tweet_str_ids
+      let timeframe
 
+      switch(req.query.timeframe){
+        case '0':
+          timeframe = 0
+          break;
+        case '1':
+          timeframe = 8.76e7
+          break;
+        case '2':
+          timeframe = 7.752e8
+          break;
+        case '3':
+          timeframe = 3.504e8
+          break;
+        default:
+          timeframe = 8.76e7
+      }
+      console.log('timeframe: ', timeframe)
+      
+      if(str_ids && str_ids.length != ids.length) {
+        res.status(400).send("arrays length doesn't match")
+      }
+      console.log('ids', ids)
+      const zip_arr = ids.map((i, j) => [i, str_ids?str_ids[j]:undefined])
+      // console.log('ID '+id)
+      let all_tweets = []
+      // each id = one user
+      for (const pair of zip_arr){
+        // https://github.com/PLhery/node-twitter-api-v2/blob/429c93d982cb460cb690a7239358fcbf175968d3/src/types/v1/tweet.v1.types.ts#L82
 
-    if(str_ids && str_ids.length != ids.length) {
-      res.status(400).send("arrays length doesn't match")
-    }
-    console.log('ids', ids)
-    const zip_arr = ids.map((i, j) => [i, str_ids?str_ids[j]:undefined])
-    // console.log('ID '+id)
-    let all_tweets = []
-    // each id = one user
-    for (const pair of zip_arr){
-      // https://github.com/PLhery/node-twitter-api-v2/blob/429c93d982cb460cb690a7239358fcbf175968d3/src/types/v1/tweet.v1.types.ts#L82
+        console.log("pair", pair)
+        let string_id = pair[1]
+        let id = pair[0]
 
-      console.log("pair", pair)
-      let string_id = pair[1]
-      let id = pair[0]
+        let params = { 
+          include_entities: true,
+          count: 2,
+          include_rts: true,
+        }
 
-      let params = { 
-        include_entities: true,
-        count: 2,
-        include_rts: true,
+        if(string_id)
+          console.log('string_id', string_id)
+          params.max_id = string_id;
+          console.log("max_id: ", params.max_id)
+        // console.log(string_id);
+        console.log('id: ', id)
+        const response = await loggedInClient.v1.userTimeline(id, params);
+
+        const fetchedTweets = response.tweets;
+        let tweets = fetchedTweets.filter(tweet => {
+          if(timeframe===0) return tweet
+          const diff = Date.now() - Date.parse(tweet.created_at);
+          if(diff < timeframe) return tweet
+        })
+        // console.log(tweets)
+        // next fetch will start from (string_id -1) to avoid duplicate entries
+        string_id = tweets.length!==0 ? bigInt(tweets[tweets.length-1].id_str).minus(1).toString():bigInt(string_id).minus(1).toString()
+
+        all_tweets.push({tweets, string_id});
+        // console.log(tweets)
       }
 
-      if(string_id)
-        console.log(string_id)
-        params.max_id = string_id;
-        console.log("max_id: ", params.max_id)
-      // console.log(string_id);
-      console.log('id: ', id)
-      const response = await loggedInClient.v1.userTimeline(id, params);
-
-      const fetchedTweets = response.tweets;
-      let tweets = fetchedTweets.filter(tweet => {
-        if(timeframe===0) return tweet
-
-        const diff = Date.now() - Date.parse(tweet.created_at);
-        if(diff < timeframe) return tweet
-      })
-
-      // next fetch will start from (string_id -1) to avoid duplicate entries
-      string_id = tweets.length!=0? bigInt(tweets[tweets.length-1].id_str).minus(1).toString():tweets[tweets.length-1].id_str;
-
-      all_tweets.push({tweets, string_id});
-      // console.log(tweets)
+      res.status(200).send(all_tweets);
     }
-
-    res.status(200).send(all_tweets);
-
    } catch (error) {
     console.log(error)
    }

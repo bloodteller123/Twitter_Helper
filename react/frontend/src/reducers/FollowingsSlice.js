@@ -22,6 +22,18 @@ const followingSlice = createSlice({
 
         },
 
+        // updateFollowing(state,action){
+        //     const string_ids = action.payload.str_ids_res
+        //     const mapResults = state.followings_list.map((following,i) => {
+        //         const tweet_str_ids = string_ids[i]
+        //         return {
+        //             ...following,
+        //             tweet_str_ids:tweet_str_ids
+        //         }
+        //     })
+        //     state.followings_list = mapResults
+        // },
+
         removeFollowing(state, action){
             const id = action.payload.user.id_str
             let filtered =  state.followings_list.filter(following => 
@@ -32,7 +44,7 @@ const followingSlice = createSlice({
     }
 })
 
-export const { addFollowing, removeFollowing, addFollowingBulk} = followingSlice.actions
+export const { addFollowing, removeFollowing, addFollowingBulk,updateFollowing} = followingSlice.actions
 
 // state.X where X should be conssitent with {reducer:{X: some reducer}} in configureStore ??
 export const selectFollowings = (state) => state.following.followings_list
