@@ -5,13 +5,24 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import store from './app/store';
 import { Provider } from 'react-redux';
+import {
+  BrowserRouter as Router,
+  Routes, Route, Link
+} from "react-router-dom";
+import Followings from './services/Followings';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   // https://stackoverflow.com/questions/61254372/my-react-component-is-rendering-twice-because-of-strict-mode
   // <React.StrictMode>
   <Provider store={store}>
-    <App />
+    <Router>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="followings" element={<Followings />} />
+        {/* <Route path="invoices" element={<Invoices />} /> */}
+      </Routes>
+    </Router>
   </Provider>  
 // </React.StrictMode>
 );

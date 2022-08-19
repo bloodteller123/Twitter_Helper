@@ -1,22 +1,17 @@
 import React, {useState, useEffect, useCallback} from "react";
-// import { CONSUMER_KEY, CONSUMER_SECRET } from "../../../../nodejs/services/Config";
 import axios from 'axios'
+import { useSelector, useDispatch } from 'react-redux';
+import qs from 'qs';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { Link } from "react-router-dom";
+
+
 import TwitterLogin from './services/TwitterLogin';
 import Tweets from "./services/Tweets";
 import SearchComp from "./services/SearchComp";
 
-import qs from 'qs';
 import 'semantic-ui-css/semantic.min.css';
-import Followings from './services/Followings';
-import _ from 'lodash';
-
-import { useSelector, useDispatch } from 'react-redux';
-
-
-import InfiniteScroll from 'react-infinite-scroll-component';
-
 import './CSS/SemanticUI.scss';
-
 
 import {
   Divider,
@@ -360,8 +355,12 @@ const Home = () =>{
                         <Menu.Item active as="a">
                         Overview
                         </Menu.Item>
-                        <Menu.Item as="a">Followers</Menu.Item>
-                        <Menu.Item as="a">Tweets</Menu.Item> 
+                        <Menu.Item as="a">
+                            <Link to="/followings">Followings</Link>
+                        </Menu.Item>
+                        {/* <Menu.Item as="a">
+                            <Link to="/tweets">Tweets</Link>
+                        </Menu.Item> */}
                     </Menu>
                     </Grid.Column>
                     <Grid.Column
