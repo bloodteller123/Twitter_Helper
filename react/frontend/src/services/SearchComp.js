@@ -22,7 +22,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import '../CSS/SemanticUI.scss';
 
 
-const SearchComp = ({loggedIn}) =>{
+const SearchComp = ({userId}) =>{
 
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState("");
@@ -50,7 +50,7 @@ const SearchComp = ({loggedIn}) =>{
 
   useEffect(() =>{
     // otherwise backend fails because client api is not established yet when searchUsers() is first rendered
-    if(loggedIn){
+    if(userId!==''){
         console.log('call debounce')
         searchUsers(value)
     }

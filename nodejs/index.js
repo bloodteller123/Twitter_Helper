@@ -153,16 +153,16 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
           timeframe = 8.76e7
           break;
         case '2':
-          timeframe = 7.752e8
+          timeframe = 1.752e8
           break;
         case '3':
-          timeframe = 3.504e8
+          timeframe = 2.628e8
           break;
         default:
           timeframe = 8.76e7
       }
       console.log('timeframe: ', timeframe)
-      
+
       if(str_ids && str_ids.length != ids.length) {
         res.status(400).send("arrays length doesn't match")
       }
@@ -180,7 +180,7 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
 
         let params = { 
           include_entities: true,
-          count: 2,
+          count: 5,
           include_rts: true,
         }
 

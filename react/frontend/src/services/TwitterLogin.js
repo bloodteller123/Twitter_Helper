@@ -12,18 +12,18 @@ import { Button } from "semantic-ui-react";
 const TwitterLogin = (props) =>{
     // const navigate = useNavigate();
     const [clicked, setClick] = useState(false)
-    const {setlogin,loggedIn} = props
-    console.log(setlogin)
-    console.log(loggedIn)
+    const {setuserid,userId} = props
+    console.log(setuserid)
+    console.log(userId)
 
     useEffect (() =>{
         // console.log("UseEffect")
         // https://stackoverflow.com/questions/53332321/react-hook-warnings-for-async-function-in-useeffect-useeffect-function-must-ret
-        console.log('In useEffect loggedin: ',loggedIn)
-        if(!loggedIn){
+        console.log('In useEffect userid: ',userId)
+        if(userId===''){
             (async () =>{
                 console.log("UseEffect")
-                console.log(setlogin)
+                console.log(setuserid)
                 const params = new URLSearchParams(window.location.search)
                 // Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
                 //   https://stackoverflow.com/questions/63707870/urlsearchparams-returns-empty-object
@@ -50,7 +50,7 @@ const TwitterLogin = (props) =>{
                                 console.log(response)
                                 // this.props.login(true)
                                 console.log('set loggedin')
-                                setlogin(true)
+                                setuserid(response.data.user.data[0].id)
                             })
                         })
                     }catch (error) {
@@ -60,7 +60,7 @@ const TwitterLogin = (props) =>{
             })()
         }
         console.log('i fire once');
-    }, [setlogin, loggedIn])
+    }, [setuserid, userId])
 
     const login = async () =>{
         console.log('Click')

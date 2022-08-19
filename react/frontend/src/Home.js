@@ -54,22 +54,26 @@ const Home = () =>{
 
     const [followings_lst_str, setFollowings_lst_str] = useState([])
 
-    const login = (val) =>{
-        setLogin(val)
+    const [userId, setUserId] = useState('')
+
+    const setid = (val) =>{
+        // setLogin(val)
+        setUserId(val)
         // setFollowings(followings=>followings.concat([...dummy_followings]))
     }
 
     const logout = ()=>{
         logout_helper()
-        setLogin(!loggedIn)
+        setUserId('')
     }
 
     useEffect(() =>{
     
         (async () => {
             console.log("State Changed")
-            console.log('LoggedIn State: ',loggedIn)
-            if(loggedIn && tweets.length==0 ){
+            // console.log('LoggedIn State: ',loggedIn)
+            console.log('userId', userId)
+            if(userId!=='' && tweets.length==0 ){
                 console.log('load first batch')
                 console.log("or add dummy followings if it's empty")
                 // cz
@@ -80,7 +84,7 @@ const Home = () =>{
                     console.log('new user')
                     const first_two_followings = await axios.get("http://localhost:3001/api/twitter/user/following", {
                         params:{
-                            id: '1422773305254334464'
+                            id: userId
                         }
                     })
                     console.log('first_two_followings', first_two_followings)
@@ -130,10 +134,10 @@ const Home = () =>{
         }})()
             
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [loggedIn])
+    }, [userId])
 
     useEffect(() =>{
-        if(loggedIn){
+        if(userId!==''){
             // need to handle the case when some usrs are removed from the list
             // remove their tweets etc.
             console.log('followings_list changed')
@@ -149,7 +153,10 @@ const Home = () =>{
     }, [followings_list])
 
 
-
+    useEffect(() =>{
+        console.log('update tweets')
+        console.log(tweets)
+    }, [tweets])
     // save states to localstorage
     useEffect(()=>{
         window.localStorage.setItem('tweets', JSON.stringify(tweets));
@@ -178,7 +185,7 @@ const Home = () =>{
 
     // with useCallback, getTweet() will re-render whenever followings_list is updated...
     const getTweet = useCallback(async ()=>{
-        if(loggedIn && !isEnd){
+        if(userId!=='' && !isEnd){
             console.log(followings_list)
             console.log("getTweet")
 
@@ -206,13 +213,15 @@ const Home = () =>{
                     const imgurl = arr.user.profile_image_url_https
                     const screen_name = arr.user.screen_name
                     const name = arr.user.name
+                    const last_created = arr.created_at
 
                     return {
                         id,
                         full_text,
                         imgurl,
                         screen_name,
-                        name
+                        name,
+                        last_created
                     }
                 })
             })
@@ -279,8 +288,9 @@ const Home = () =>{
         setTimeframe(value)
     }
 
+    //use useEffect can guarantee isEnd has been updated
     useEffect(() =>{
-        if(loggedIn && !isEnd){
+        if(userId!=='' && !isEnd){
             console.log('calling getTweet')
             getTweet()
         }
@@ -288,9 +298,13 @@ const Home = () =>{
 
     useEffect(() =>{
         console.log('time frame changed')
-        if(loggedIn){
+        if(userId!==''){
             console.log('setting !isEnd')
-            setisEnd(false)
+            // when dropdown is changed == > current time - last tweet's time must be bigger than selected timeframe*24hrs
+            if(timeframe===0 || (Date.now()-Date.parse((tweets[tweets.length-1].last_created)) < timeframe*8.76e7 )){
+                console.log('satisfied')
+                setisEnd(false)
+            }
             // getTweet()
         }
     }, [timeframe])
@@ -313,13 +327,13 @@ const Home = () =>{
               <Menu.Menu position="right">
                 <Menu.Item>
                     <div>
-                        <SearchComp loggedIn={loggedIn}/>
+                        <SearchComp userId={userId}/>
                     </div>
                 </Menu.Item>
                 <Menu.Item as="a">Dashboard</Menu.Item>
                 <Menu.Item as="a">Settings</Menu.Item>
                 <Menu.Item as="a">
-                {loggedIn?
+                {userId!==''?
                     <Dropdown icon='user' floating button className='icon'>
                         <DropdownMenu>
                             <DropdownItem icon='attention' text='Important' />
@@ -327,13 +341,13 @@ const Home = () =>{
                         </DropdownMenu>
                     </Dropdown>
                     :
-                    <TwitterLogin setlogin = {login} loggedIn={loggedIn}/>
+                    <TwitterLogin setuserid = {setid} userId={userId}/>
                 }
                 </Menu.Item>
               </Menu.Menu>
             </Menu>
           </Grid>
-          {loggedIn?
+          {userId!==''?
             <div className="Body" style={styles.body}>
                 <Grid padded columns={2}>
                     <Grid.Column
@@ -366,8 +380,7 @@ const Home = () =>{
                         </Grid.Column>
                         <Grid.Column >
                         <Dropdown
-                            // placeholder='24 hours'
-                            defaultValue = '24 hours'
+                            placeholder='24 hours'
                             compact
                             selection
                             closeOnEscape
@@ -375,7 +388,7 @@ const Home = () =>{
                             onChange={handleDropdown}
                         />
                         </Grid.Column>
-                        <Button primary onClick={test}>Get Tweet</Button>
+                        {/* <Button primary onClick={test}>Get Tweet</Button> */}
                         </Grid.Row>                        
                         <Grid.Row textAlign="center">
                         {/* <div class="ui two column centered grid"> */}
@@ -385,19 +398,19 @@ const Home = () =>{
                             <div className="twelve wide column">
                                 <div id="scrollableDiv" style={{ height: 300, overflow: "auto" }}>
                                         <InfiniteScroll
-                                        dataLength={tweets.length}
-                                        next={handleScrolling}
-                                        hasMore={!isEnd}
-                                        loader={<div className="ui active centered inline loader"></div>}
-                                        scrollThreshold={0.8}
-                                        // height does the trick????
-                                        height={300}
-                                        endMessage={
-                                            <p style={{textAlign:'center'}}><b>Yay! You've seen it all!</b></p>
-                                        }
-                                        scrollableTarget="scrollableDiv"
-                                        >
-                                        {<Tweets tweets = {tweets}/>}
+                                            dataLength={tweets.length}
+                                            next={handleScrolling}
+                                            hasMore={!isEnd}
+                                            loader={<div className="ui active centered inline loader"></div>}
+                                            scrollThreshold={0.8}
+                                            // height does the trick????
+                                            height={300}
+                                            endMessage={
+                                                <p style={{textAlign:'center'}}><b>Yay! You've seen it all!</b></p>
+                                            }
+                                            scrollableTarget="scrollableDiv"
+                                            >
+                                            {<Tweets tweets = {tweets}/>}
                                         </InfiniteScroll>
                                 </div>
                                 {/* <Followings/> */}
