@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import TwitterLogin from './services/TwitterLogin';
 import Tweets from "./services/Tweets";
 import SearchComp from "./services/SearchComp";
+import HeaderLayer from "./routes/HeaderLayer";
 
 import 'semantic-ui-css/semantic.min.css';
 import './CSS/SemanticUI.scss';
@@ -57,10 +58,10 @@ const Home = () =>{
         // setFollowings(followings=>followings.concat([...dummy_followings]))
     }
 
-    const logout = ()=>{
-        logout_helper()
-        setUserId('')
-    }
+    // const logout = ()=>{
+    //     logout_helper()
+    //     setUserId('')
+    // }
 
     useEffect(() =>{
     
@@ -314,7 +315,8 @@ const Home = () =>{
 
     return (
         <div className="Home">
-          <Grid padded className="tablet computer only">
+            <HeaderLayer SearchComp = {SearchComp} TwitterLogin = {TwitterLogin} userId = {userId} setUserid={setid}/>
+          {/* <Grid padded className="tablet computer only">
             <Menu borderless inverted fluid fixed="top">
               <Menu.Item header as="a">
                 Tweeter
@@ -341,7 +343,7 @@ const Home = () =>{
                 </Menu.Item>
               </Menu.Menu>
             </Menu>
-          </Grid>
+          </Grid> */}
           {userId!==''?
             <div className="Body" style={styles.body}>
                 <Grid padded columns={2}>

@@ -12,8 +12,8 @@ import { Button } from "semantic-ui-react";
 const TwitterLogin = (props) =>{
     // const navigate = useNavigate();
     const [clicked, setClick] = useState(false)
-    const {setuserid,userId} = props
-    console.log(setuserid)
+    const {setUserid,userId} = props
+    console.log(setUserid)
     console.log(userId)
 
     useEffect (() =>{
@@ -23,7 +23,7 @@ const TwitterLogin = (props) =>{
         if(userId===''){
             (async () =>{
                 console.log("UseEffect")
-                console.log(setuserid)
+                console.log(setUserid)
                 const params = new URLSearchParams(window.location.search)
                 // Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
                 //   https://stackoverflow.com/questions/63707870/urlsearchparams-returns-empty-object
@@ -50,7 +50,7 @@ const TwitterLogin = (props) =>{
                                 console.log(response)
                                 // this.props.login(true)
                                 console.log('set loggedin')
-                                setuserid(response.data.user.data[0].id)
+                                setUserid(response.data.user.data[0].id)
                             })
                         })
                     }catch (error) {
@@ -60,7 +60,7 @@ const TwitterLogin = (props) =>{
             })()
         }
         console.log('i fire once');
-    }, [setuserid, userId])
+    }, [setUserid, userId])
 
     const login = async () =>{
         console.log('Click')
