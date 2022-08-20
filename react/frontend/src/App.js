@@ -2,17 +2,27 @@ import React from 'react';
 import './App.css';
 import Home from './Home';
 import {
-  BrowserRouter as Router,
+  // BrowserRouter as Router,
   Routes, Route, Link
 } from "react-router-dom"
 
+import HeaderLayer from './routes/HeaderLayer';
+import Followings from './services/Followings'
+import TwitterLogin from './services/TwitterLogin';
+import SearchComp from './services/SearchComp';
+
 function App() {
   return (
-    <div className="App">
-      <div>
-        <Home/>
+    // <Router>
+      <div className="App">
+        <HeaderLayer SearchComp = {SearchComp} TwitterLogin = {TwitterLogin}/>
+        <Routes>
+          <Route path="/" element={<Home/>} />
+          <Route path="/followings" element={<Followings />} />
+          {/* <Route path="invoices" element={<Invoices />} /> */}
+        </Routes>
       </div>
-    </div>
+    // </Router>
   );
 }
 

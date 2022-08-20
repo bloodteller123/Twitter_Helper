@@ -46,7 +46,7 @@ const followingSlice = createSlice({
 
 export const { addFollowing, removeFollowing, addFollowingBulk,updateFollowing} = followingSlice.actions
 
-// state.X where X should be conssitent with {reducer:{X: some reducer}} in configureStore ??
+// state.X where X should be consistent with {reducer:{X: some reducer}} in configureStore ??
 export const selectFollowings = (state) => state.following.followings_list
 
 export default followingSlice.reducer

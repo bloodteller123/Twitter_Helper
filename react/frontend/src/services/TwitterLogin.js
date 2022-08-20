@@ -3,6 +3,8 @@ import React from "react";
 import axios from 'axios'
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { selectUserId, setUserId } from "../reducers/UserIdSlice";
 import 'semantic-ui-css/semantic.min.css';
 
 import { Button } from "semantic-ui-react";
@@ -10,12 +12,13 @@ import { Button } from "semantic-ui-react";
 
 
 const TwitterLogin = (props) =>{
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const [clicked, setClick] = useState(false)
-    const {setUserid,userId} = props
-    console.log(setUserid)
-    console.log(userId)
-
+    // const {setUserid,userId} = props
+    // console.log(setUserid)
+    // console.log(userId)
+    const dispatch = useDispatch()
+    const userId = useSelector(selectUserId)
     useEffect (() =>{
         // console.log("UseEffect")
         // https://stackoverflow.com/questions/53332321/react-hook-warnings-for-async-function-in-useeffect-useeffect-function-must-ret
@@ -23,7 +26,7 @@ const TwitterLogin = (props) =>{
         if(userId===''){
             (async () =>{
                 console.log("UseEffect")
-                console.log(setUserid)
+
                 const params = new URLSearchParams(window.location.search)
                 // Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
                 //   https://stackoverflow.com/questions/63707870/urlsearchparams-returns-empty-object
@@ -50,7 +53,8 @@ const TwitterLogin = (props) =>{
                                 console.log(response)
                                 // this.props.login(true)
                                 console.log('set loggedin')
-                                setUserid(response.data.user.data[0].id)
+                                dispatch(setUserId({id:response.data.user.data[0].id}))
+                                navigate('/')
                             })
                         })
                     }catch (error) {
@@ -60,7 +64,7 @@ const TwitterLogin = (props) =>{
             })()
         }
         console.log('i fire once');
-    }, [setUserid, userId])
+    }, [])
 
     const login = async () =>{
         console.log('Click')
@@ -83,9 +87,6 @@ const TwitterLogin = (props) =>{
             window.location ="http://localhost:3000"
         })
     }
-
-
-    console.log(props);
 
     return (
        // <div>

@@ -1,9 +1,9 @@
 import React from "react";
 import axios from 'axios';
+import { useSelector, useDispatch } from "react-redux";
 
 import 'semantic-ui-css/semantic.min.css';
 import '../CSS/SemanticUI.scss';
-
 
 import {
   Divider,
@@ -15,12 +15,17 @@ import {
   DropdownItem,
   Button
 } from "semantic-ui-react";
+import { resetUserId, selectUserId } from "../reducers/UserIdSlice";
+import { Link } from "react-router-dom";
 
-const HeaderLayer = ({SearchComp, TwitterLogin, userId, setUserid}) =>{
+const HeaderLayer = ({SearchComp, TwitterLogin}) =>{
+    const dispatch = useDispatch()
+    const userId = useSelector(selectUserId)
 
     const logout = ()=>{
       logout_helper()
-      setUserid('')
+      // setUserid('')
+      dispatch(resetUserId({emptyId:''}))
   }
 
   const logout_helper = async ()=>{
@@ -34,8 +39,8 @@ const HeaderLayer = ({SearchComp, TwitterLogin, userId, setUserid}) =>{
     return (
         <Grid padded className="tablet computer only">
         <Menu borderless inverted fluid fixed="top">
-          <Menu.Item header as="a">
-            Tweeter
+          <Menu.Item header >
+            <Link to='/'>Tweets</Link>
           </Menu.Item>
           <Menu.Menu position="right">
             <Menu.Item>
@@ -43,9 +48,9 @@ const HeaderLayer = ({SearchComp, TwitterLogin, userId, setUserid}) =>{
                     {<SearchComp userId={userId}/>}
                 </div>
             </Menu.Item>
-            <Menu.Item as="a">Dashboard</Menu.Item>
-            <Menu.Item as="a">Settings</Menu.Item>
-            <Menu.Item as="a">
+            <Menu.Item >Dashboard</Menu.Item>
+            <Menu.Item >Settings</Menu.Item>
+            <Menu.Item >
             {userId!==''?
                 <Dropdown icon='user' floating button className='icon'>
                     <DropdownMenu>
@@ -54,7 +59,7 @@ const HeaderLayer = ({SearchComp, TwitterLogin, userId, setUserid}) =>{
                     </DropdownMenu>
                 </Dropdown>
                 :
-                <TwitterLogin setUserid = {setUserid} userId={userId}/>
+                <TwitterLogin/>
             }
             </Menu.Item>
           </Menu.Menu>

@@ -18,7 +18,7 @@ const Tweets = ({tweets}) =>{
       };
     return (
         <>
-            {tweets.map(tweet =>(
+            {tweets && tweets.map(tweet =>(
                 <div key={tweet.id} style={style}>
                     <Card fluid>
                         <Card.Content>

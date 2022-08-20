@@ -35,14 +35,14 @@ import {
     const handleCLick = (user) =>{
         console.log(user)
         dispatch(removeFollowing({user}))
-        console.log('done')
+        console.log('done removing following')
     }
 
     return(
         <>
-            <div style={{coloumns: "2 auto"}}>
+            <div style={{coloumns: "2 auto", 'marginTop':'80px'}}>
                 {followings.map(following => (
-                    <div style={style}>
+                    <div style={style} key={following.id}>
                     <Card style={{flex:1,flexBasis:0}}>
                         <Card.Content>
                             <Image

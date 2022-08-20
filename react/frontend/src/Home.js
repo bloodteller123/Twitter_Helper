@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import qs from 'qs';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from "react-router-dom";
+import _ from 'lodash';
 
 
 import TwitterLogin from './services/TwitterLogin';
@@ -33,48 +34,38 @@ import{
     updateFollowing
   } from "./reducers/FollowingsSlice";
 
+  import { selectUserId } from "./reducers/UserIdSlice";
+
 
 const Home = () =>{
     const followings_list = useSelector(selectFollowings)
+    const userId = useSelector(selectUserId)
     const dispatch = useDispatch()
 
     const [loggedIn, setLogin] = useState(false)
     // const[user, setUser] = useState([])
     const [newUser, setNewuser] = useState(true)
 
-    const[tweets, setTweets] = useState(JSON.parse(window.localStorage.getItem('tweets')) || [])
+    const[tweets, setTweets] = useState([])
 
     const [isEnd, setisEnd] = useState(false)
 
-    const [timeframe, setTimeframe] = useState(JSON.parse(window.localStorage.getItem('timeframe')) || 1)
+    const [timeframe, setTimeframe] = useState(1)
 
     const [followings_lst_str, setFollowings_lst_str] = useState([])
-
-    const [userId, setUserId] = useState('')
-
-    const setid = (val) =>{
-        // setLogin(val)
-        setUserId(val)
-        // setFollowings(followings=>followings.concat([...dummy_followings]))
-    }
-
-    // const logout = ()=>{
-    //     logout_helper()
-    //     setUserId('')
-    // }
 
     useEffect(() =>{
     
         (async () => {
             console.log("State Changed")
-            // console.log('LoggedIn State: ',loggedIn)
+
             console.log('userId', userId)
             if(userId!=='' && tweets.length==0 ){
                 console.log('load first batch')
                 console.log("or add dummy followings if it's empty")
                 // cz
-                if(newUser || followings_list.length==0) {
-
+                //if(newUser || followings_list.length==0) {
+                if(followings_list.length==0) {
                     // https://stackoverflow.com/questions/52993463/how-to-promise-all-for-nested-arrays
                     // https://stackoverflow.com/questions/57066137/axios-requests-in-parallel
                     console.log('new user')
@@ -133,17 +124,20 @@ const Home = () =>{
     }, [userId])
 
     useEffect(() =>{
-        if(userId!==''){
+        if(userId!=='' ){
             // need to handle the case when some usrs are removed from the list
             // remove their tweets etc.
             console.log('followings_list changed')
-            const arr = followings_list.map((i,j) => {
+            console.log(followings_list)
+            const arrs = followings_list.map((i,j) => {
                 const obj = {id: i.id, str_id: followings_lst_str[j]?.str_id}
                 console.log(obj)
                 return obj
             })
-            console.log(arr)
-            setFollowings_lst_str(arr)
+            console.log(arrs)
+            setTweets(prevTweets => prevTweets.filter(tweet => arrs.some( arr => arr.id === tweet.author_id ))
+                                                .map(tweet=>tweet))
+            setFollowings_lst_str(arrs)
             getTweet()
         }
     }, [followings_list])
@@ -153,13 +147,26 @@ const Home = () =>{
         console.log('update tweets')
         console.log(tweets)
     }, [tweets])
+
+    useEffect(()=>{
+        const t = JSON.parse(window.localStorage.getItem('tweets'))
+        if(t) setTweets(t)
+        else setTweets([])
+        const fls = JSON.parse(window.localStorage.getItem('followings_lst_str'))
+        if(fls)setFollowings_lst_str(fls)
+        else setFollowings_lst_str([])
+        const tf = JSON.parse(window.localStorage.getItem('timeframe'))
+        if(tf) setTimeframe(tf)
+        else setTimeframe(1)
+    }, [])
+
     // save states to localstorage
     useEffect(()=>{
         window.localStorage.setItem('tweets', JSON.stringify(tweets));
         // window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
-        window.localStorage.setItem('followings', JSON.stringify(followings_list));
+        window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
         window.localStorage.setItem('timeframe', JSON.stringify(timeframe));
-    }, [tweets, followings_list, timeframe])
+    }, [tweets, followings_lst_str, timeframe,newUser])
 
     const arrayIsEqual = (a1, a2) => 
         a1 === a2 ||
@@ -181,7 +188,7 @@ const Home = () =>{
 
     // with useCallback, getTweet() will re-render whenever followings_list is updated...
     const getTweet = useCallback(async ()=>{
-        if(userId!=='' && !isEnd){
+        if(userId!=='' && !isEnd ){
             console.log(followings_list)
             console.log("getTweet")
 
@@ -210,6 +217,7 @@ const Home = () =>{
                     const screen_name = arr.user.screen_name
                     const name = arr.user.name
                     const last_created = arr.created_at
+                    const author_id = arr.user.id_str
 
                     return {
                         id,
@@ -217,7 +225,8 @@ const Home = () =>{
                         imgurl,
                         screen_name,
                         name,
-                        last_created
+                        last_created,
+                        author_id
                     }
                 })
             })
@@ -236,10 +245,10 @@ const Home = () =>{
                 console.log("Not equal")
                 // append arrays to a array state
                 // https://stackoverflow.com/questions/70690542/react-js-how-to-properly-append-multiple-items-to-an-array-state-using-its-use
+                //https://stackoverflow.com/questions/37057746/javascript-merge-two-arrays-of-objects-and-de-duplicate-based-on-property-valu
                 concat_arr.sort(sortTweets)
                 console.log('sorted')
-                console.log(concat_arr)
-                setTweets((prevTweets) => prevTweets.concat([...concat_arr]))
+                setTweets((prevTweets) => _.unionBy(prevTweets, [...concat_arr], 'id'))
                 // by design, str_ids_res should contain last str_ids for every following in the following list
                 // dispatch(updateFollowing({str_ids_res}))
             }
@@ -266,12 +275,6 @@ const Home = () =>{
         }
     }
 
-    const styles = {
-        body:{
-            marginTop:100
-        }
-    }
-
     const options = [
         { key: 1, text: '24 hrs', value: 1 },
         { key: 2, text: '48 hrs', value: 2 },
@@ -286,7 +289,7 @@ const Home = () =>{
 
     //use useEffect can guarantee isEnd has been updated
     useEffect(() =>{
-        if(userId!=='' && !isEnd){
+        if(userId!=='' && !isEnd ){
             console.log('calling getTweet')
             getTweet()
         }
@@ -297,7 +300,7 @@ const Home = () =>{
         if(userId!==''){
             console.log('setting !isEnd')
             // when dropdown is changed == > current time - last tweet's time must be bigger than selected timeframe*24hrs
-            if(timeframe===0 || (Date.now()-Date.parse((tweets[tweets.length-1].last_created)) < timeframe*8.76e7 )){
+            if(timeframe===0 || (tweets.length!==0 &&(Date.now()-Date.parse((tweets[tweets.length-1].last_created)) < timeframe*8.76e7 ))){
                 console.log('satisfied')
                 setisEnd(false)
             }
@@ -315,37 +318,8 @@ const Home = () =>{
 
     return (
         <div className="Home">
-            <HeaderLayer SearchComp = {SearchComp} TwitterLogin = {TwitterLogin} userId = {userId} setUserid={setid}/>
-          {/* <Grid padded className="tablet computer only">
-            <Menu borderless inverted fluid fixed="top">
-              <Menu.Item header as="a">
-                Tweeter
-              </Menu.Item>
-              <Menu.Menu position="right">
-                <Menu.Item>
-                    <div>
-                        <SearchComp userId={userId}/>
-                    </div>
-                </Menu.Item>
-                <Menu.Item as="a">Dashboard</Menu.Item>
-                <Menu.Item as="a">Settings</Menu.Item>
-                <Menu.Item as="a">
-                {userId!==''?
-                    <Dropdown icon='user' floating button className='icon'>
-                        <DropdownMenu>
-                            <DropdownItem icon='attention' text='Important' />
-                            <DropdownItem icon='log out' text='Logout' onClick={logout}/>
-                        </DropdownMenu>
-                    </Dropdown>
-                    :
-                    <TwitterLogin setuserid = {setid} userId={userId}/>
-                }
-                </Menu.Item>
-              </Menu.Menu>
-            </Menu>
-          </Grid> */}
           {userId!==''?
-            <div className="Body" style={styles.body}>
+            <div className="Body" style={{'marginTop':'80px'}}>
                 <Grid padded columns={2}>
                     <Grid.Column
                     tablet={3}
@@ -354,13 +328,13 @@ const Home = () =>{
                     id="sidebar"
                     >
                     <Menu vertical borderless fluid text>
-                        <Menu.Item active as="a">
+                        <Menu.Item active >
                         Overview
                         </Menu.Item>
-                        <Menu.Item as="a">
+                        <Menu.Item >
                             <Link to="/followings">Followings</Link>
                         </Menu.Item>
-                        {/* <Menu.Item as="a">
+                        {/* <Menu.Item>
                             <Link to="/tweets">Tweets</Link>
                         </Menu.Item> */}
                     </Menu>
@@ -427,7 +401,7 @@ const Home = () =>{
                 </Grid>
             </div>
             :
-            <div style={styles.body}>Not logged In</div>
+            <div style={{'marginTop':'80px'}}>Not logged In</div>
           }
         </div>
       );
