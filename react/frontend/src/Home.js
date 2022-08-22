@@ -6,14 +6,11 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { Link } from "react-router-dom";
 import _ from 'lodash';
 
-
-import TwitterLogin from './services/TwitterLogin';
 import Tweets from "./services/Tweets";
-import SearchComp from "./services/SearchComp";
-import HeaderLayer from "./routes/HeaderLayer";
 
 import 'semantic-ui-css/semantic.min.css';
 import './CSS/SemanticUI.scss';
+import './CSS/Homepage.scss';
 
 import {
   Divider,
@@ -54,11 +51,12 @@ const Home = () =>{
 
     const [followings_lst_str, setFollowings_lst_str] = useState([])
 
+    const [scrollState, setScrollState] = useState('auto')
+
     useEffect(() =>{
     
         (async () => {
             console.log("State Changed")
-
             console.log('userId', userId)
             if(userId!=='' && tweets.length==0 ){
                 console.log('load first batch')
@@ -119,7 +117,6 @@ const Home = () =>{
                     console.log('TBD')
                 }
         }})()
-            
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId])
 
@@ -127,15 +124,15 @@ const Home = () =>{
         if(userId!=='' ){
             // need to handle the case when some usrs are removed from the list
             // remove their tweets etc.
-            console.log('followings_list changed')
-            console.log(followings_list)
+            console.log('followings_list changed ',followings_list)
             const arrs = followings_list.map((i,j) => {
-                const obj = {id: i.id, str_id: followings_lst_str[j]?.str_id}
+                const obj = {id: i.id.toString(), str_id: followings_lst_str[j]?.str_id}
                 console.log(obj)
                 return obj
             })
             console.log(arrs)
-            setTweets(prevTweets => prevTweets.filter(tweet => arrs.some( arr => arr.id === tweet.author_id ))
+            // somehow arr.id is number type... need to investigate
+            setTweets(prevTweets => prevTweets.filter(tweet => arrs.some(arr => arr.id.toString() === tweet.author_id ))
                                                 .map(tweet=>tweet))
             setFollowings_lst_str(arrs)
             getTweet()
@@ -162,6 +159,7 @@ const Home = () =>{
 
     // save states to localstorage
     useEffect(()=>{
+        console.log('update localstorage')
         window.localStorage.setItem('tweets', JSON.stringify(tweets));
         // window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
         window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
@@ -210,7 +208,7 @@ const Home = () =>{
 
             const filtered_res = tweets_res.map((res) =>{
                 return res.map(arr =>{
-                    // console.log(arr)
+                    console.log(arr)
                     const id = arr.id_str
                     const full_text = arr.full_text
                     const imgurl = arr.user.profile_image_url_https
@@ -218,7 +216,8 @@ const Home = () =>{
                     const name = arr.user.name
                     const last_created = arr.created_at
                     const author_id = arr.user.id_str
-
+                    const media_photo = arr.extended_entities?.media.map(m=>({id:m.id_str, url:m.media_url_https}))
+                    // video, gif later
                     return {
                         id,
                         full_text,
@@ -226,7 +225,8 @@ const Home = () =>{
                         screen_name,
                         name,
                         last_created,
-                        author_id
+                        author_id,
+                        media_photo
                     }
                 })
             })
@@ -371,21 +371,22 @@ const Home = () =>{
 
                         {/* https://semantic-ui.com/collections/grid.html#/definition */}
                             <div className="twelve wide column">
-                                <div id="scrollableDiv" style={{ height: 300, overflow: "auto" }}>
-                                        <InfiniteScroll
+                                <div id="scrollableDiv" style={{ height: '100%', overflow: "auto" }}>
+                                        <InfiniteScroll 
+                                            style={{ overflowY: scrollState }}
                                             dataLength={tweets.length}
                                             next={handleScrolling}
                                             hasMore={!isEnd}
                                             loader={<div className="ui active centered inline loader"></div>}
                                             scrollThreshold={0.8}
                                             // height does the trick????
-                                            height={300}
+                                            height={500}
                                             endMessage={
                                                 <p style={{textAlign:'center'}}><b>Yay! You've seen it all!</b></p>
                                             }
                                             scrollableTarget="scrollableDiv"
                                             >
-                                            {<Tweets tweets = {tweets}/>}
+                                            {<Tweets tweets = {tweets} scroll={(val)=>setScrollState(val)}/>}
                                         </InfiniteScroll>
                                 </div>
                                 {/* <Followings/> */}

@@ -51,6 +51,10 @@ const SearchComp = ({userId}) =>{
   useEffect(() =>{
     // otherwise backend fails because client api is not established yet when searchUsers() is first rendered
     if(userId!==''){
+        if(value===''){
+          setLoading(false)
+          return;
+        }
         console.log('call debounce')
         searchUsers(value)
     }
@@ -63,7 +67,7 @@ const SearchComp = ({userId}) =>{
 
   const handleSearchChange = useCallback((e, data) =>{
     // console.log(e.target)
-    setLoading(!loading)
+    setLoading(true)
     setValue(data.value)
   }, [])
 

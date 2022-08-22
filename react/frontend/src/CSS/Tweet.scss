@@ -1,0 +1,29 @@
+.container {
+    // https://stackoverflow.com/questions/73436892/react-how-to-display-an-image-on-top-of-the-entire-screen-when-the-image-is-gene/73437852#73437852
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-size: contain;
+    background-repeat: no-repeat no-repeat;
+    background-position: center center;
+    background-color: black;
+  }
+
+.backg{
+    width: 300px;
+    height: 300px;
+    overflow: hidden;
+    //https://stackoverflow.com/questions/953918/how-to-align-a-div-to-the-middle-horizontally-width-of-the-page
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.backg .img{
+    //https://stackoverflow.com/questions/57725/how-can-i-display-just-a-portion-of-an-image-in-html-css
+    margin: -60px;
+}
