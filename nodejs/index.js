@@ -184,10 +184,11 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
           include_rts: true,
         }
 
-        if(string_id)
+        if(string_id && string_id!==''){
           console.log('string_id', string_id)
           params.max_id = string_id;
           console.log("max_id: ", params.max_id)
+        }
         // console.log(string_id);
         console.log('id: ', id)
         const response = await loggedInClient.v1.userTimeline(id, params);
@@ -200,12 +201,26 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
         })
         // console.log(tweets)
         // next fetch will start from (string_id -1) to avoid duplicate entries
-        string_id = tweets.length!==0 ? bigInt(tweets[tweets.length-1].id_str).minus(1).toString():bigInt(string_id).minus(1).toString()
+        // bigInt(undefined) ===0
 
+        // string_id = tweets.length!==0 ? bigInt(tweets[tweets.length-1].id_str).minus(1).toString()
+        //             :
+        // (undefined || '') returns ''
+        //             (string_id===(undefined||'') ? '':bigInt(string_id).minus(1).toString())
+        if(tweets.length!==0){
+          string_id = bigInt(tweets[tweets.length-1].id_str).minus(1).toString()
+        }else{
+          if(string_id===undefined || string_id===''){
+            string_id = ''
+          }else{
+            string_id = bigInt(string_id).minus(1).toString()
+          }
+        }
         all_tweets.push({tweets, string_id});
         // console.log(tweets)
       }
 
+      console.log('before sending back response: ', all_tweets)
       res.status(200).send(all_tweets);
     }
    } catch (error) {

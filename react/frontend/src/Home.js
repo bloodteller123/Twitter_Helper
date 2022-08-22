@@ -208,7 +208,7 @@ const Home = () =>{
 
             const filtered_res = tweets_res.map((res) =>{
                 return res.map(arr =>{
-                    console.log(arr)
+                    // console.log(arr)
                     const id = arr.id_str
                     const full_text = arr.full_text
                     const imgurl = arr.user.profile_image_url_https
@@ -254,7 +254,7 @@ const Home = () =>{
             }
 
 
-            setFollowings_lst_str(followings_list.map((i,j) => ({id: i.id, tweet_str_ids: str_ids_res[j]})))
+            setFollowings_lst_str(followings_list.map((i,j) => ({id: i.id_str, tweet_str_ids: str_ids_res[j]})))
 
         }
     },[followings_list, followings_lst_str, isEnd, timeframe])

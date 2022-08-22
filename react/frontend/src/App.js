@@ -7,7 +7,7 @@ import {
 } from "react-router-dom"
 
 import HeaderLayer from './routes/HeaderLayer';
-import Followings from './services/Followings'
+import Followings from './routes/Followings'
 import TwitterLogin from './services/TwitterLogin';
 import SearchComp from './services/SearchComp';
 

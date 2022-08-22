@@ -47,10 +47,10 @@ const Tweets = ({tweets, scroll}) =>{
                                 {tweet.full_text}
                             </Card.Description>
                             {tweet.media_photo && tweet.media_photo.map(photo => (
-                                <div className="backg">
+                                <div className="backg" key={photo.id}>
                                     <Image className="img" key={photo.id} data-key={photo.id} src={photo.url} onClick={handleClickImg}/>
                                     {clickId ===photo.id ?
-                                        <div className="container" style={{backgroundImage:"url(" + photo.url + ")"}} 
+                                        <div key={photo.id} className="container" style={{backgroundImage:"url(" + photo.url + ")"}} 
                                             onClick={handleClickContainer}></div>
                                         : 
                                         <></>
