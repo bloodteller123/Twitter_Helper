@@ -10,6 +10,7 @@ const oauth = require('./services/oauth')()
 const {CONSUMER_KEY, CONSUMER_SECRET } = require('./services/Config.js')
 const {TwitterApi} = require('twitter-api-v2')
 const bigInt = require("big-integer");
+const db = require('./db/db')
 
 app.use(express.json())
 app.use(cors())
@@ -253,6 +254,22 @@ app.get('/api/twitter/users/search' , async(req, res) =>{
   }
   const foundUsers = await loggedInClient.v1.searchUsers(user_query, params);
   res.status(200).send(foundUsers._realData)
+})
+
+// should call this after retrieve followings id from db
+app.get('/api/twitter/users/lookup', async(req,res) =>{
+  const user_ids = req.query.userIds;
+  console.log('user Ids ', user_ids)
+  const users = await loggedInClient.v1.users({
+    user_id: user_ids
+  })
+  console.log(users)
+})
+
+
+app.get('/test/id', async(req,res) =>{
+  const result = await db.query("SELECT * FROM user_table")
+  console.log(result)
 })
 
 const PORT = 3001

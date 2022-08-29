@@ -12,6 +12,7 @@
 ~~5. update reducers to allow modifying the state array (tweet_str_ids)~~
 
 ~~6. sort tweets chronologically ~~
+
 7. Integrate database
 
 8. Implement Notes which allow users to save some tweets to the repository. 

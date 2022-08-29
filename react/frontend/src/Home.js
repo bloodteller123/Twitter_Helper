@@ -309,11 +309,7 @@ const Home = () =>{
     }, [timeframe])
     
     const test = () =>{
-        axios.get("http://localhost:3001/api/twitter/user/following", {
-            params:{
-                id:'1422773305254334464'
-            }
-        })
+        axios.get("http://localhost:3001/test/id")
     }
 
     return (
@@ -363,7 +359,7 @@ const Home = () =>{
                             onChange={handleDropdown}
                         />
                         </Grid.Column>
-                        {/* <Button primary onClick={test}>Get Tweet</Button> */}
+                        <Button primary onClick={test}>Get Tweet</Button>
                         </Grid.Row>                        
                         <Grid.Row textAlign="center">
                         {/* <div class="ui two column centered grid"> */}
