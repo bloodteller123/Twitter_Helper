@@ -115,18 +115,28 @@ const SearchComp = ({userId}) =>{
         loading={loading}
         placeholder='Search...'
         size = "small"
-        onResultSelect={(e, data) =>{
+        onResultSelect={async (e, data) =>{
           const user = data.result
           console.log(user)
           switch(e.target.id){
             case "follow_button":
               console.log("add following")
               dispatch(addFollowing({user}))
+              const result = await axios.post("http://localhost:3001/api/db/add/followings",{
+                followings: user,
+                follower_id: userId
+              })
+              console.log(result)
               break
             case "remove_button":
               // should we check if this user is in followings list? 
               console.log('remove')
               dispatch(removeFollowing({user}))
+              await axios.delete("http://localhost:3001/api/db/delete/followings", {
+                data:{
+                    followings:user.id_str,
+                    id: userId
+                    }})
               break
             default:
               console.log('')

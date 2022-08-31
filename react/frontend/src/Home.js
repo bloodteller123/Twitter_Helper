@@ -170,7 +170,7 @@ const Home = () =>{
             setTweets(prevTweets => prevTweets.filter(tweet => arrs.some(arr => arr.id.toString() === tweet.author_id ))
                                                 .map(tweet=>tweet))
             setFollowings_lst_str(arrs)
-            getTweet()
+            
         }
     }, [followings_list])
 
@@ -217,6 +217,7 @@ const Home = () =>{
 
     useEffect(() =>{
         console.log("followings_lst_str changed ", followings_lst_str)
+        getTweet()
     }, [followings_lst_str])
 
     // with useCallback, getTweet() will re-render whenever followings_list is updated...

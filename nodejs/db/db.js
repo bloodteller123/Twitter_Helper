@@ -16,7 +16,7 @@ module.exports = {
         const client = await pool.connect()
         const db_calls = await client.query(text, params)
         client.release()
-        // console.log('in db:', db_calls.rows)
+        // console.log('in db:', db_calls)
         return db_calls.rows
     }
 }

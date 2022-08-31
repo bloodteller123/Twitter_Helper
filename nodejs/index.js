@@ -162,7 +162,7 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
         default:
           timeframe = 8.76e7
       }
-      console.log('timeframe: ', timeframe)
+      // console.log('timeframe: ', timeframe)
 
       if(str_ids && str_ids.length != ids.length) {
         res.status(400).send("arrays length doesn't match")
@@ -175,7 +175,7 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
       for (const pair of zip_arr){
         // https://github.com/PLhery/node-twitter-api-v2/blob/429c93d982cb460cb690a7239358fcbf175968d3/src/types/v1/tweet.v1.types.ts#L82
 
-        console.log("pair", pair)
+        // console.log("pair", pair)
         let string_id = pair[1]
         let id = pair[0]
 
@@ -221,7 +221,7 @@ app.get('/api/twitter/id/tweet', async (req, res) =>{
         // console.log(tweets)
       }
 
-      console.log('before sending back response: ', all_tweets)
+      // console.log('before sending back response: ', all_tweets)
       res.status(200).send(all_tweets);
     }
    } catch (error) {
@@ -267,6 +267,11 @@ app.get('/api/twitter/users/lookup', async(req,res) =>{
 })
 
 
+
+
+
+
+
 app.get('/api/db/users/followings', async(req,res) =>{
   const user_id = req.query.userId;
   console.log('user id', user_id)
@@ -276,16 +281,30 @@ app.get('/api/db/users/followings', async(req,res) =>{
   res.status(200).send(result)
 })
 
+app.post('/api/db/add/user', async(req, res) =>{
+  console.log(req.body)
 
-app.get('/api/db/users/tweets', async(req,res) =>{
+  const j = await db.query("INSERT INTO user_table VALUES($1, $2) ON CONFLICT DO NOTHING", [req.body.user.id,req.body.user.username])
+  console.log(j)
+  res.status(201).send()
+})
 
+app.post('/api/db/add/followings', async(req,res) =>{
+  console.log(req.body)
+  const checkExist = await db.query("SELECT EXISTS (SELECT * FROM user_table WHERE id = $1)", [req.body.followings.id_str])
+  console.log(checkExist[0].exists)
+  if(!checkExist[0].exists){
+    const i = await db.query("INSERT INTO user_table VALUES($1, $2)", [req.body.followings.id_str,req.body.followings.screen_name])
+  }
+  const j = await db.query("INSERT INTO follower VALUES($1, $2) ON CONFLICT DO NOTHING", [req.body.followings.id_str,req.body.follower_id])
+  console.log(j)
 })
 
 app.delete('/api/db/delete/followings', async(req,res) =>{
   const followings_id =req.body.followings_id
   console.log(followings_id)
   const qry = ` (${req.body.id}, ${followings_id})`
-  const result = await db.query("DELETE FROM follower WHERE (user_id, follower_id) = ($1, $2) RETURNING *",[followings_id, req.body.id])
+  const result = await db.query("DELETE FROM follower WHERE (user_id, follower_id) = ($1, $2) RETURNING *",[followings_id, req.body.follower_id])
   console.log(result)
   res.status(204).send()
 })

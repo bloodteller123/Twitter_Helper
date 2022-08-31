@@ -54,7 +54,15 @@ const TwitterLogin = (props) =>{
                                 // this.props.login(true)
                                 console.log('set loggedin')
                                 dispatch(setUserId({id:response.data.user.data[0].id}))
-                                navigate('/')
+                                axios.post('http://localhost:3001/api/db/add/user', {
+                                    user: response.data.user.data[0]
+                                }).then(response=>{
+                                    console.log(response)
+                                    if(response.status===201){
+                                        navigate('/')
+                                    }
+                                    
+                                })
                             })
                         })
                     }catch (error) {
