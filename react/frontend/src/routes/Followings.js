@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useCallback} from "react";
+import axios from 'axios';
 
 import 'semantic-ui-css/semantic.min.css';
 
@@ -15,12 +16,16 @@ import {
     removeFollowing,
     selectFollowings
   } from "../reducers/FollowingsSlice";
+
+  import { selectUserId } from "../reducers/UserIdSlice";
+
   
   import { useSelector, useDispatch } from 'react-redux';
 
   const Followings = () =>{
     
     const followings = useSelector(selectFollowings)
+    const userId = useSelector(selectUserId)
     const dispatch = useDispatch()
 //https://stackoverflow.com/questions/55733903/how-to-align-a-text-and-a-button-element-in-the-div-right-next-to-each-other
     const style = {
@@ -32,9 +37,17 @@ import {
 
     }
 
-    const handleCLick = (user) =>{
+    const handleCLick = async (user) =>{
         console.log(user)
         dispatch(removeFollowing({user}))
+        const x = await axios.delete("http://localhost:3001/api/db/delete/followings", 
+        {
+            data:{
+                followings_id:user.id_str,
+                id: userId
+                }
+        })
+        console.log(x)
         console.log('done removing following')
     }
 

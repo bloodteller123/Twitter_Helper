@@ -11,11 +11,12 @@ const pool = new Pool({
 
 module.exports = {
   //https://node-postgres.com/api/pool
-    async query(text) {
+    async query(text, params) {
+
         const client = await pool.connect()
-        const db_calls = await client.query(text)
+        const db_calls = await client.query(text, params)
         client.release()
-        console.log('in db:', db_calls.rows)
+        // console.log('in db:', db_calls.rows)
         return db_calls.rows
     }
 }

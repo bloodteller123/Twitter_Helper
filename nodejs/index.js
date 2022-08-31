@@ -263,13 +263,31 @@ app.get('/api/twitter/users/lookup', async(req,res) =>{
   const users = await loggedInClient.v1.users({
     user_id: user_ids
   })
-  console.log(users)
+  res.status(200).send(users)
 })
 
 
-app.get('/test/id', async(req,res) =>{
+app.get('/api/db/users/followings', async(req,res) =>{
+  const user_id = req.query.userId;
+  console.log('user id', user_id)
+  // const result = await db.query("SELECT * FROM follower where user_id = $1", [user_id])
   const result = await db.query("SELECT * FROM user_table")
+
+  res.status(200).send(result)
+})
+
+
+app.get('/api/db/users/tweets', async(req,res) =>{
+
+})
+
+app.delete('/api/db/delete/followings', async(req,res) =>{
+  const followings_id =req.body.followings_id
+  console.log(followings_id)
+  const qry = ` (${req.body.id}, ${followings_id})`
+  const result = await db.query("DELETE FROM follower WHERE (user_id, follower_id) = ($1, $2) RETURNING *",[followings_id, req.body.id])
   console.log(result)
+  res.status(204).send()
 })
 
 const PORT = 3001

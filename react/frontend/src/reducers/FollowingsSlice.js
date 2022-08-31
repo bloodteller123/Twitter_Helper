@@ -17,7 +17,7 @@ const followingSlice = createSlice({
         },
 
         addFollowingBulk(state, action){
-            const followings = action.payload.iniital_followings
+            const followings = action.payload.followings
             state.followings_list = followings
 
         },

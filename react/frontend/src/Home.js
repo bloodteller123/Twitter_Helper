@@ -108,13 +108,47 @@ const Home = () =>{
                         const initial_tweets = res.map(obj => obj.first_tweets)
                         console.log('initial_tweets', initial_tweets)
 
-                        setFollowings_lst_str(iniital_followings.map((i,j) => ({id: i.id, tweet_str_ids: initial_tweets[j].string_id})))
+                        // setFollowings_lst_str(iniital_followings.map((i,j) => ({id: i.id, tweet_str_ids: initial_tweets[j].string_id})))
+                        setFollowings_lst_str(iniital_followings.map((i,j) => ({id: i.id_str, tweet_str_ids: null})))
+
                         setNewuser(false)
-                        dispatch(addFollowingBulk({iniital_followings}))
+                        dispatch(addFollowingBulk({followings:iniital_followings}))
                       })
                 }
                 else{ // if it's an old user
                     console.log('TBD')
+                    const followings_db = await axios.get("http://localhost:3001/api/db/users/followings", {
+                        params:{
+                            id: userId
+                        }
+                    })
+                    const foll = followings_db.data.map(i => i.id)
+                    console.log(foll)
+                    const f_list = await axios.get('http://localhost:3001/api/twitter/users/lookup', {
+                        params:{
+                            userIds: foll
+                        }
+                    })
+                    const data = f_list.data
+                    console.log(data)
+                    // const tasks = f_list.map(async(following) =>{
+                    //     return axios.get()
+                    // })
+
+                    // const retrieved_tweets = await axios.get("http://localhost:3001/api/twitter/id/tweet", {
+                    //             params: {
+                    //                 ids: foll,
+                    //                 str_ids: undefined,
+                    //                 timeframe: timeframe
+                    //             },
+                    //             paramsSerializer: params => {
+                    //                 return qs.stringify(params)
+                    //             }
+                    //         })
+                    // console.log('retrieved_tweets: ', retrieved_tweets)
+
+                    setFollowings_lst_str(data.map((i,j) => ({id: i.id_str, tweet_str_ids: null})))
+                    dispatch(addFollowingBulk({followings:data}))
                 }
         }})()
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,6 +164,7 @@ const Home = () =>{
                 console.log(obj)
                 return obj
             })
+
             console.log(arrs)
             // somehow arr.id is number type... need to investigate
             setTweets(prevTweets => prevTweets.filter(tweet => arrs.some(arr => arr.id.toString() === tweet.author_id ))
@@ -308,8 +343,9 @@ const Home = () =>{
         }
     }, [timeframe])
     
-    const test = () =>{
-        axios.get("http://localhost:3001/test/id")
+    const test = async () =>{
+        console.log('click test')
+        await axios.delete("http://localhost:3001/api/db/delete/followings", {data:{followings:['123','1234']}})
     }
 
     return (
