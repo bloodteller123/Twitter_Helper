@@ -259,7 +259,10 @@ app.get('/api/twitter/users/search' , async(req, res) =>{
 // should call this after retrieve followings id from db
 app.get('/api/twitter/users/lookup', async(req,res) =>{
   const user_ids = req.query.userIds;
-  console.log('user Ids ', user_ids)
+  console.log(req)
+  console.log(user_ids)
+  if(!user_ids) return res.status(204).send()
+  console.log('following ids ', user_ids)
   const users = await loggedInClient.v1.users({
     user_id: user_ids
   })
@@ -271,14 +274,19 @@ app.get('/api/twitter/users/lookup', async(req,res) =>{
 
 
 
-
 app.get('/api/db/users/followings', async(req,res) =>{
   const user_id = req.query.userId;
   console.log('user id', user_id)
-  // const result = await db.query("SELECT * FROM follower where user_id = $1", [user_id])
-  const result = await db.query("SELECT * FROM user_table")
+  const results = await db.query("SELECT * FROM follower where follower_id = $1", [user_id])
+  // const result = await db.query("SELECT * FROM user_table")
+  console.log('get followings result: ', results)
 
-  res.status(200).send(result)
+  res.status(200).send(results)
+})
+
+app.get('/api/db/users/exists', async(req, res) =>{
+  const exist = await db.query("SELECT EXISTS (SELECT * FROM user_table WHERE id = $1)", [req.query.userId])
+  res.status(200).send(exist)
 })
 
 app.post('/api/db/add/user', async(req, res) =>{
@@ -290,9 +298,8 @@ app.post('/api/db/add/user', async(req, res) =>{
 })
 
 app.post('/api/db/add/followings', async(req,res) =>{
-  console.log(req.body)
+  // console.log(req.body)
   const checkExist = await db.query("SELECT EXISTS (SELECT * FROM user_table WHERE id = $1)", [req.body.followings.id_str])
-  console.log(checkExist[0].exists)
   if(!checkExist[0].exists){
     const i = await db.query("INSERT INTO user_table VALUES($1, $2)", [req.body.followings.id_str,req.body.followings.screen_name])
   }

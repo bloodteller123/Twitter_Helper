@@ -39,6 +39,8 @@ const Home = () =>{
     const userId = useSelector(selectUserId)
     const dispatch = useDispatch()
 
+    const url_prefix = 'http://localhost:3001';
+
     const [loggedIn, setLogin] = useState(false)
     // const[user, setUser] = useState([])
     const [newUser, setNewuser] = useState(true)
@@ -53,6 +55,8 @@ const Home = () =>{
 
     const [scrollState, setScrollState] = useState('auto')
 
+    const [isGetTweet, setGetTweet] = useState(false)
+
     useEffect(() =>{
     
         (async () => {
@@ -63,11 +67,13 @@ const Home = () =>{
                 console.log("or add dummy followings if it's empty")
                 // cz
                 //if(newUser || followings_list.length==0) {
-                if(followings_list.length==0) {
+                // if(followings_list.length==0) {
+                const exist = await axios.get(url_prefix+'/api/db/users/exists')
+                if(!exist){
                     // https://stackoverflow.com/questions/52993463/how-to-promise-all-for-nested-arrays
                     // https://stackoverflow.com/questions/57066137/axios-requests-in-parallel
                     console.log('new user')
-                    const first_two_followings = await axios.get("http://localhost:3001/api/twitter/user/following", {
+                    const first_two_followings = await axios.get(url_prefix+"/api/twitter/user/following", {
                         params:{
                             id: userId
                         }
@@ -76,7 +82,7 @@ const Home = () =>{
 
                     const tasks = first_two_followings.data.map(async(following,i) =>{
                         const axiosCalls = [
-                            axios.get("http://localhost:3001/api/twitter/id/tweet", {
+                            axios.get(url_prefix+"/api/twitter/id/tweet", {
                                 params: {
                                     ids: [following.id],
                                     str_ids: undefined,
@@ -86,7 +92,7 @@ const Home = () =>{
                                     return qs.stringify(params)
                                 }
                             }), 
-                            axios.get("http://localhost:3001/api/twitter/users/search", {
+                            axios.get(url_prefix+"/api/twitter/users/search", {
                                 params: {
                                     userName: following.username
                                 }
@@ -117,38 +123,44 @@ const Home = () =>{
                 }
                 else{ // if it's an old user
                     console.log('TBD')
-                    const followings_db = await axios.get("http://localhost:3001/api/db/users/followings", {
+                    const followings_db = await axios.get(url_prefix+"/api/db/users/followings", {
                         params:{
                             id: userId
                         }
                     })
+
+                    console.log(followings_db)
                     const foll = followings_db.data.map(i => i.id)
                     console.log(foll)
-                    const f_list = await axios.get('http://localhost:3001/api/twitter/users/lookup', {
+                    const f_list = await axios.get(url_prefix+'/api/twitter/users/lookup', {
                         params:{
                             userIds: foll
                         }
                     })
-                    const data = f_list.data
-                    console.log(data)
-                    // const tasks = f_list.map(async(following) =>{
-                    //     return axios.get()
-                    // })
+                    if(f_list.status!==204){
+                        const data = f_list.data
+                        console.log(data)
+                        // const tasks = f_list.map(async(following) =>{
+                        //     return axios.get()
+                        // })
 
-                    // const retrieved_tweets = await axios.get("http://localhost:3001/api/twitter/id/tweet", {
-                    //             params: {
-                    //                 ids: foll,
-                    //                 str_ids: undefined,
-                    //                 timeframe: timeframe
-                    //             },
-                    //             paramsSerializer: params => {
-                    //                 return qs.stringify(params)
-                    //             }
-                    //         })
-                    // console.log('retrieved_tweets: ', retrieved_tweets)
+                        // const retrieved_tweets = await axios.get(url_prefix+"/api/twitter/id/tweet", {
+                        //             params: {
+                        //                 ids: foll,
+                        //                 str_ids: undefined,
+                        //                 timeframe: timeframe
+                        //             },
+                        //             paramsSerializer: params => {
+                        //                 return qs.stringify(params)
+                        //             }
+                        //         })
+                        // console.log('retrieved_tweets: ', retrieved_tweets)
 
-                    setFollowings_lst_str(data.map((i,j) => ({id: i.id_str, tweet_str_ids: null})))
-                    dispatch(addFollowingBulk({followings:data}))
+                        setFollowings_lst_str(data.map((i,j) => ({id: i.id_str, tweet_str_ids: null})))
+                        dispatch(addFollowingBulk({followings:data}))
+                    }else{
+                        setisEnd(true)
+                    }
                 }
         }})()
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -170,6 +182,7 @@ const Home = () =>{
             setTweets(prevTweets => prevTweets.filter(tweet => arrs.some(arr => arr.id.toString() === tweet.author_id ))
                                                 .map(tweet=>tweet))
             setFollowings_lst_str(arrs)
+            setGetTweet(true)
             
         }
     }, [followings_list])
@@ -181,9 +194,9 @@ const Home = () =>{
     }, [tweets])
 
     useEffect(()=>{
-        const t = JSON.parse(window.localStorage.getItem('tweets'))
-        if(t) setTweets(t)
-        else setTweets([])
+        // const t = JSON.parse(window.localStorage.getItem('tweets'))
+        // if(t) setTweets(t)
+        // else setTweets([])
         const fls = JSON.parse(window.localStorage.getItem('followings_lst_str'))
         if(fls)setFollowings_lst_str(fls)
         else setFollowings_lst_str([])
@@ -195,7 +208,7 @@ const Home = () =>{
     // save states to localstorage
     useEffect(()=>{
         console.log('update localstorage')
-        window.localStorage.setItem('tweets', JSON.stringify(tweets));
+        // window.localStorage.setItem('tweets', JSON.stringify(tweets));
         // window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
         window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
         window.localStorage.setItem('timeframe', JSON.stringify(timeframe));
@@ -217,8 +230,12 @@ const Home = () =>{
 
     useEffect(() =>{
         console.log("followings_lst_str changed ", followings_lst_str)
-        getTweet()
-    }, [followings_lst_str])
+        if(isGetTweet){
+            setGetTweet(false)
+            // getTweet()
+            setisEnd(false)
+        }
+    }, [followings_lst_str,isGetTweet])
 
     // with useCallback, getTweet() will re-render whenever followings_list is updated...
     const getTweet = useCallback(async ()=>{
@@ -226,7 +243,7 @@ const Home = () =>{
             console.log(followings_list)
             console.log("getTweet")
 
-            const res = await axios.get("http://localhost:3001/api/twitter/id/tweet",{
+            const res = await axios.get(url_prefix+"/api/twitter/id/tweet",{
                 params: {
                     ids: followings_list.map(i => i.id_str),
                     tweet_str_ids: followings_lst_str.map(i => i.tweet_str_ids),
@@ -297,7 +314,7 @@ const Home = () =>{
 
 
     const logout_helper = async ()=>{
-        axios.post("http://localhost:3001/api/twitter/logout")
+        axios.post(url_prefix+"/api/twitter/logout")
         .then((response) =>{
             console.log(response.data)
             window.location ="http://localhost:3000"
@@ -346,7 +363,7 @@ const Home = () =>{
     
     const test = async () =>{
         console.log('click test')
-        await axios.delete("http://localhost:3001/api/db/delete/followings", {data:{followings:['123','1234']}})
+        await axios.delete(url_prefix+"/api/db/delete/followings", {data:{followings:['123','1234']}})
     }
 
     return (

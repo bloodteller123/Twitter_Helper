@@ -135,7 +135,7 @@ const SearchComp = ({userId}) =>{
               await axios.delete("http://localhost:3001/api/db/delete/followings", {
                 data:{
                     followings:user.id_str,
-                    id: userId
+                    follower_id: userId
                     }})
               break
             default:
