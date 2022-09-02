@@ -1,0 +1,80 @@
+  .noti-container {
+    width: 600px;
+    box-shadow: 0 2px 8px 0 #1a273d40;
+    border: solid 1px #e0e7ff;
+    background-color: #ffffff;
+    padding: 1rem 2rem;
+    margin: 0 0.5rem;
+  }
+  
+  .success-container {
+    border-left: 4px solid #4cd16d;
+    border-right: 4px solid #4cd16d;
+    margin: 0 auto;
+  }
+  
+  .noti-container > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .info-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .info-container > div > h5:nth-child(1) {
+    margin: 0 0 0.5rem 0;
+  }
+
+//   .info-container > div > h5:nth-child(2) {
+//     margin: 0;
+//   }
+  
+  .noti-container > div > div:nth-child(1) {
+    margin: 0 auto;
+  }
+
+  p.title {
+    font-weight: bolder;
+    font-size: medium;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  }
+
+  p.message {
+    font-weight: 500;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  }
+  
+//   .snackbar-icon {
+//     width: 24px;
+//     height: 24px;
+//     border-radius: 50%;
+//     background-image: url(../images/alertCircle.svg);
+//     background-repeat: no-repeat;
+//     background-position: center;
+//     margin-right: 1rem;
+//   }
+
+//   .success-snackbar-icon {
+//     background-color: #4cd16d;
+//   }
+
+  
+//   #close-snackbar-icon {
+//     height: 1.5rem;
+//     width: 1.5rem;
+//   }
+  
+//   #snackbar-fixed-container {
+//     position: fixed;
+//     bottom: 4rem;
+//   }
+  
+  @media (max-width: 728px) {
+    .noti-container {
+      width: auto;
+    }
+  }

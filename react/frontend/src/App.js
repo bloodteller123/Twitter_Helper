@@ -10,6 +10,7 @@ import HeaderLayer from './routes/HeaderLayer';
 import Followings from './routes/Followings'
 import TwitterLogin from './services/TwitterLogin';
 import SearchComp from './services/SearchComp';
+import FavouritesComp from './routes/Favourites';
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home/>} />
           <Route path="/followings" element={<Followings />} />
-          {/* <Route path="invoices" element={<Invoices />} /> */}
+          <Route path="/favourites" element={<FavouritesComp />} />
         </Routes>
       </div>
     // </Router>

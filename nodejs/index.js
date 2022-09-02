@@ -259,7 +259,7 @@ app.get('/api/twitter/users/search' , async(req, res) =>{
 // should call this after retrieve followings id from db
 app.get('/api/twitter/users/lookup', async(req,res) =>{
   const user_ids = req.query.userIds;
-  console.log(req)
+  // console.log(req)
   console.log(user_ids)
   if(!user_ids) return res.status(204).send()
   console.log('following ids ', user_ids)
@@ -275,7 +275,7 @@ app.get('/api/twitter/users/lookup', async(req,res) =>{
 
 
 app.get('/api/db/users/followings', async(req,res) =>{
-  const user_id = req.query.userId;
+  const user_id = req.query.id;
   console.log('user id', user_id)
   const results = await db.query("SELECT * FROM follower where follower_id = $1", [user_id])
   // const result = await db.query("SELECT * FROM user_table")
@@ -305,16 +305,47 @@ app.post('/api/db/add/followings', async(req,res) =>{
   }
   const j = await db.query("INSERT INTO follower VALUES($1, $2) ON CONFLICT DO NOTHING", [req.body.followings.id_str,req.body.follower_id])
   console.log(j)
+  res.status(201).send()
 })
 
 app.delete('/api/db/delete/followings', async(req,res) =>{
   const followings_id =req.body.followings_id
-  console.log(followings_id)
+  console.log('Followings_id in delete: ', followings_id)
   const qry = ` (${req.body.id}, ${followings_id})`
   const result = await db.query("DELETE FROM follower WHERE (user_id, follower_id) = ($1, $2) RETURNING *",[followings_id, req.body.follower_id])
   console.log(result)
   res.status(204).send()
 })
+
+app.post('/api/db/add/favourite', async(req,res)=>{
+  console.log(req.body)
+  console.log(`adding tweet ${req.body.id} to favourites`)
+  const i = await db.query("INSERT INTO tweet_table(id,full_text,imgurl,screen_name,name,last_created,author_id,media_photo) VALUES($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id) DO NOTHING", 
+            [req.body.id,req.body.full_text,req.body.imgurl,req.body.screen_name,req.body.name,req.body.last_created,req.body.author_id,req.body.media_photo])
+  console.log(i);
+  const j = await db.query("INSERT INTO favourite VALUES ($1, $2)", [req.body.userId, req.body.id])
+  console.log(j)
+  res.status(201).send()
+})
+
+app.delete('/api/db/delete/favourite', async(req,res)=>{
+  console.log(req.body)
+  const result = await db.query("DELETE FROM favourite WHERE (user_id, tweet_id) = ($1, $2) RETURNING *",[req.body.userId, req.body.id])
+  console.log(result)
+  res.status(204).send()
+})
+
+app.get('/api/db/get/favourites', async(req,res) =>{
+  const results = await db.query("SELECT * FROM favourite WHERE user_id = $1", [req.query.userId])
+  console.log(results)
+  res.status(200).send(results)
+})
+
+
+app.get('/api/db/get/tweet', async(req,res)=>{
+  
+})
+
 
 const PORT = 3001
 app.listen(PORT, ()=>{console.log(`listen on port ${PORT}`)})

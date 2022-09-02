@@ -17,6 +17,10 @@
 
 8. Implement Notes which allow users to save some tweets to the repository. 
 
+9. bugs: 1. followers --> remove some --> click 'Tweets'; addFollowingBUlk is called again
+
 # sidenotes
  
 1. oauth implementations are from [this library](https://github.com/ciaranj/node-oauth/blob/master/lib/oauth.js)
+
+2. Notification was inspired by [this medium article](https://medium.com/swlh/react-notifications-without-dependencies-801397777e85)

@@ -57,6 +57,13 @@ const Home = () =>{
 
     const [isGetTweet, setGetTweet] = useState(false)
 
+    const options = [
+        { key: 1, text: '24 hrs', value: 1 },
+        { key: 2, text: '48 hrs', value: 2 },
+        { key: 3, text: '72 hrs', value: 3 },
+        { key: 4, text: 'unlimited', value: 0 },
+      ]
+
     useEffect(() =>{
     
         (async () => {
@@ -123,6 +130,7 @@ const Home = () =>{
                 }
                 else{ // if it's an old user
                     console.log('TBD')
+                    console.log(userId)
                     const followings_db = await axios.get(url_prefix+"/api/db/users/followings", {
                         params:{
                             id: userId
@@ -130,7 +138,7 @@ const Home = () =>{
                     })
 
                     console.log(followings_db)
-                    const foll = followings_db.data.map(i => i.id)
+                    const foll = followings_db.data.map(i => i.user_id)
                     console.log(foll)
                     const f_list = await axios.get(url_prefix+'/api/twitter/users/lookup', {
                         params:{
@@ -159,6 +167,7 @@ const Home = () =>{
                         setFollowings_lst_str(data.map((i,j) => ({id: i.id_str, tweet_str_ids: null})))
                         dispatch(addFollowingBulk({followings:data}))
                     }else{
+                        console.log('204')
                         setisEnd(true)
                     }
                 }
@@ -197,6 +206,9 @@ const Home = () =>{
         // const t = JSON.parse(window.localStorage.getItem('tweets'))
         // if(t) setTweets(t)
         // else setTweets([])
+        const t = JSON.parse(window.localStorage.getItem('isEnd'))
+        if(t)setisEnd(t)
+        else setisEnd(false)
         const fls = JSON.parse(window.localStorage.getItem('followings_lst_str'))
         if(fls)setFollowings_lst_str(fls)
         else setFollowings_lst_str([])
@@ -212,7 +224,8 @@ const Home = () =>{
         // window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
         window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
         window.localStorage.setItem('timeframe', JSON.stringify(timeframe));
-    }, [tweets, followings_lst_str, timeframe,newUser])
+        window.localStorage.setItem('isEnd',isEnd.toString())
+    }, [tweets, followings_lst_str, timeframe,newUser,isEnd])
 
     const arrayIsEqual = (a1, a2) => 
         a1 === a2 ||
@@ -231,9 +244,13 @@ const Home = () =>{
     useEffect(() =>{
         console.log("followings_lst_str changed ", followings_lst_str)
         if(isGetTweet){
-            setGetTweet(false)
+            
             // getTweet()
-            setisEnd(false)
+            console.log('calling setisend')
+            // setisEnd(false)
+            console.log('calling getTweet')
+            getTweet()
+            setGetTweet(false)
         }
     }, [followings_lst_str,isGetTweet])
 
@@ -328,13 +345,6 @@ const Home = () =>{
         }
     }
 
-    const options = [
-        { key: 1, text: '24 hrs', value: 1 },
-        { key: 2, text: '48 hrs', value: 2 },
-        { key: 3, text: '72 hrs', value: 3 },
-        { key: 4, text: 'unlimited', value: 0 },
-      ]
-
     const handleDropdown = (e, {value}) =>{
         console.log(value)
         setTimeframe(value)
@@ -342,9 +352,12 @@ const Home = () =>{
 
     //use useEffect can guarantee isEnd has been updated
     useEffect(() =>{
+        console.log('isEnd: ',isEnd)
         if(userId!=='' && !isEnd ){
-            console.log('calling getTweet')
-            getTweet()
+            
+            // console.log('calling getTweet')
+            // getTweet()
+            // setGetTweet(false)
         }
     }, [isEnd])
 
@@ -379,10 +392,13 @@ const Home = () =>{
                     >
                     <Menu vertical borderless fluid text>
                         <Menu.Item active >
-                        Overview
+                            <Link to="/">Tweets</Link>
                         </Menu.Item>
                         <Menu.Item >
                             <Link to="/followings">Followings</Link>
+                        </Menu.Item>
+                        <Menu.Item >
+                            <Link to="/favourites">Favourites</Link>
                         </Menu.Item>
                         {/* <Menu.Item>
                             <Link to="/tweets">Tweets</Link>
@@ -436,7 +452,7 @@ const Home = () =>{
                                             }
                                             scrollableTarget="scrollableDiv"
                                             >
-                                            {<Tweets tweets = {tweets} scroll={(val)=>setScrollState(val)}/>}
+                                            {<Tweets tweets = {tweets} scroll={(val)=>setScrollState(val)} userId={userId}/>}
                                         </InfiniteScroll>
                                 </div>
                                 {/* <Followings/> */}
