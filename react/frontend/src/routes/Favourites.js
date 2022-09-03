@@ -51,6 +51,13 @@ import NotificationPop from "../services/NotificationPopup";
                 }
             })
             console.log(results)
+            const tweets_fav = await axios.get(url_prefix+'/api/db/get/tweet', {
+                params:{
+                    tweetIds:results.data.map(i=>i.tweet_id)
+                }
+            })
+
+            setFavourites(tweets_fav.data)
         })()
     },[])
 

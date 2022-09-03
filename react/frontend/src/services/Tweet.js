@@ -14,7 +14,7 @@ import {
 import { useSelector } from 'react-redux';
 
 
-const Tweet = ({tweet, scroll, userId}) =>{
+const Tweet = ({tweet, scroll, userId, page}) =>{
 
     const [clickId, setClickID] = useState(0)
     const [isliked, setLike] = useState('grey')
