@@ -343,10 +343,10 @@ app.get('/api/db/get/favourites', async(req,res) =>{
 
 
 app.get('/api/db/get/tweet', async(req,res)=>{
-  console.log(req.query.tweetIds)
+  // console.log(req.query.tweetIds)
   const arr = `{${req.query.tweetIds.join()}}`
-  console.log(arr)
   const results = await db.query("SELECT * FROM tweet_table WHERE id = ANY($1)", [arr])
+  console.log(results)
   res.status(200).send(results)
 })
 

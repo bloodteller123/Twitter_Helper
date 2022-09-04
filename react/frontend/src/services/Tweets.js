@@ -12,7 +12,7 @@ import {
 
 import Tweet from "./Tweet";
 
-const Tweets = ({tweets, scroll, userId}) =>{
+const Tweets = ({tweets, scroll, userId, page}) =>{
     // console.log(tweets)
     // const [clickId, setClickID] = useState(0)
     // const style = {
@@ -45,7 +45,7 @@ const Tweets = ({tweets, scroll, userId}) =>{
     return (
         <>
             {tweets && tweets.map(tweet =>(
-                <Tweet tweet={tweet} scroll={scroll} userId={userId}/>
+                <Tweet tweet={tweet} scroll={scroll} userId={userId} page={page}/>
             ))}
         </>
     );

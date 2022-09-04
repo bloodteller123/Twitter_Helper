@@ -17,7 +17,7 @@ import { useSelector } from 'react-redux';
 const Tweet = ({tweet, scroll, userId, page}) =>{
 
     const [clickId, setClickID] = useState(0)
-    const [isliked, setLike] = useState('grey')
+    const [isliked, setLike] = useState(page==='fav'?'red' : 'grey')
     const style = {
         // height: 30,
         border: "1px solid green",
