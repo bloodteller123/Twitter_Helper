@@ -48,7 +48,7 @@ import NotificationPop from "../services/NotificationPopup";
         {
             data:{
                 followings_id:user.id_str,
-                id: userId
+                follower_id: userId
                 }
         })
         setShow(true)
@@ -59,6 +59,7 @@ import NotificationPop from "../services/NotificationPopup";
     return(
         <>
             <div style={{coloumns: "2 auto", 'marginTop':'70px'}}>
+                {isShow?<NotificationPop isShow={isShow} setShow={setShow} title={'Unfollow Successfully!'} />:<></>}
                 {followings.map(following => (
                     <div style={style} key={following.id}>
                         <Card style={{flex:1,flexBasis:0}}>
@@ -79,7 +80,6 @@ import NotificationPop from "../services/NotificationPopup";
                         <Button onClick={() => handleCLick(following)}>Followed</Button>
                     </div>
                 ))}
-                {isShow?<NotificationPop isShow={isShow} setShow={setShow} title={'Unfollow Successfully!'} />:<></>}
             </div>
         </>
     );

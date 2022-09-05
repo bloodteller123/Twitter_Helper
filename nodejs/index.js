@@ -311,10 +311,10 @@ app.post('/api/db/add/followings', async(req,res) =>{
 app.delete('/api/db/delete/followings', async(req,res) =>{
   const followings_id =req.body.followings_id
   console.log('Followings_id in delete: ', followings_id)
-  const qry = ` (${req.body.id}, ${followings_id})`
-  const result = await db.query("DELETE FROM follower WHERE (user_id, follower_id) = ($1, $2) RETURNING *",[followings_id, req.body.follower_id])
+  // const qry = ` (${req.body.id}, ${followings_id})`
+  const result = await db.query(`DELETE FROM follower WHERE user_id = $1 AND follower_id = $2 RETURNING *`,[followings_id, req.body.follower_id])
   console.log(result)
-  res.status(204).send()
+  res.status(204).send(result)
 })
 
 app.post('/api/db/add/favourite', async(req,res)=>{

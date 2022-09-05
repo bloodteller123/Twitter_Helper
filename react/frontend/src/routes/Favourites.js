@@ -24,6 +24,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import NotificationPop from "../services/NotificationPopup";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Tweets from "../services/Tweets";
+import { set } from "lodash";
 
 
 
@@ -69,14 +70,21 @@ import Tweets from "../services/Tweets";
 
             console.log(data)
             setFavourites(data)
-            setLocalFav(data.slice(0,5))
+            
         })()
     },[])
 
     useEffect(()=>{
         window.localStorage.setItem('fav',JSON.stringify(favourites));
         // window.localStorage.setItem('local_fav',JSON.stringify(local_fav));
+        setLocalFav(favourites.slice(0,5))
     }, [favourites])
+
+    const updateFav = (tweet) =>{
+        setFavourites(prevT => prevT.filter(t => t.id!==tweet.id).map(t=>t))
+        setShow(true)
+    }
+
 
     const appendMoreFav = () =>{
         if(local_fav.length === favourites.length){
@@ -86,13 +94,9 @@ import Tweets from "../services/Tweets";
         setLocalFav(favourites.slice(0, local_fav.length+5))
     }
 
-    // useEffect(()=>{
-    //     setLocalFav(favourites.splice(0, index))
-    // }, [index])
-
     const handleScrolling = () =>{
         if(!isEnd){
-            console.log('scrolling')
+            console.log('scrolling fav')
             appendMoreFav()
         }
     }
@@ -100,6 +104,7 @@ import Tweets from "../services/Tweets";
     return(
         <>
              <div id="scrollableDiv" style={{ height: '100%', overflow: "auto", 'marginTop':'70px' }}>
+             {isShow?<NotificationPop isShow={isShow} setShow={setShow} title={'Remove from Favourites Successfully!'} />:<></>}
                 <InfiniteScroll 
                     style={{ overflowY: scrollState }}
                     dataLength={local_fav.length}
@@ -114,7 +119,7 @@ import Tweets from "../services/Tweets";
                     }
                     scrollableTarget="scrollableDiv"
                     >
-                    {<Tweets tweets = {local_fav} scroll={(val)=>setScrollState(val)} userId={userId} page={'fav'}/>}
+                    {<Tweets tweets = {local_fav} scroll={(val)=>setScrollState(val)} userId={userId} page={'fav'} updateFav={updateFav}/>}
                 </InfiniteScroll>
             </div>
         </>

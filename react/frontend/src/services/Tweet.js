@@ -14,7 +14,7 @@ import {
 import { useSelector } from 'react-redux';
 
 
-const Tweet = ({tweet, scroll, userId, page}) =>{
+const Tweet = ({tweet, scroll, userId, page,updateFav}) =>{
 
     const [clickId, setClickID] = useState(0)
     const [isliked, setLike] = useState(page==='fav'?'red' : 'grey')
@@ -52,6 +52,7 @@ const Tweet = ({tweet, scroll, userId, page}) =>{
                 }
             })
             console.log(result)
+            updateFav(tweet)
         }
         else{
             setLike('red')
