@@ -17,7 +17,7 @@ import { useSelector } from 'react-redux';
 const Tweet = ({tweet, scroll, userId, page,updateFav}) =>{
 
     const [clickId, setClickID] = useState(0)
-    const [isliked, setLike] = useState(page==='fav'?'red' : 'grey')
+    const [isliked, setLike] = useState('')
     const style = {
         // height: 30,
         border: "1px solid green",
@@ -41,9 +41,14 @@ const Tweet = ({tweet, scroll, userId, page,updateFav}) =>{
         scroll('hidden')
     }
 
+    useEffect(()=>{
+        const s = page==='fav'?'red' : 'grey';
+        setLike(s)
+    }, [])
+
     const handleClickSave = async () =>{
         if(isliked==='red'){
-            setLike('grey')
+            // setLike('grey')
 
             const result = await axios.delete(url_prefix+'/api/db/delete/favourite',{
                 data:{
