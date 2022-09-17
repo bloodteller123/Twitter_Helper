@@ -206,6 +206,7 @@ const Home = () =>{
         // const t = JSON.parse(window.localStorage.getItem('tweets'))
         // if(t) setTweets(t)
         // else setTweets([])
+        console.log('from localstorage')
         const t = JSON.parse(window.localStorage.getItem('isEnd'))
         if(t)setisEnd(t)
         else setisEnd(false)
@@ -213,13 +214,15 @@ const Home = () =>{
         if(fls)setFollowings_lst_str(fls)
         else setFollowings_lst_str([])
         const tf = JSON.parse(window.localStorage.getItem('timeframe'))
-        if(tf) setTimeframe(tf)
+        console.log(tf)
+        if(tf !== null) setTimeframe(tf)
         else setTimeframe(1)
     }, [])
 
     // save states to localstorage
     useEffect(()=>{
         console.log('update localstorage')
+        console.log(timeframe, isEnd)
         // window.localStorage.setItem('tweets', JSON.stringify(tweets));
         // window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
         window.localStorage.setItem('followings_lst_str', JSON.stringify(followings_lst_str));
@@ -357,7 +360,7 @@ const Home = () =>{
             
             // console.log('calling getTweet')
             // getTweet()
-            // setGetTweet(false)
+            setGetTweet(true)
         }
     }, [isEnd])
 

@@ -19,6 +19,8 @@
 
 9. bugs: 1. followers --> remove some --> click 'Tweets'; addFollowingBUlk is called again
 
+10. sometimes the tweets are not displayed in chronological order
+
 # sidenotes
  
 1. oauth implementations are from [this library](https://github.com/ciaranj/node-oauth/blob/master/lib/oauth.js)
