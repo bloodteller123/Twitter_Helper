@@ -21,6 +21,8 @@
 
 10. sometimes the tweets are not displayed in chronological order
 
+11. implement refresh fuction
+
 # sidenotes
  
 1. oauth implementations are from [this library](https://github.com/ciaranj/node-oauth/blob/master/lib/oauth.js)

@@ -433,6 +433,7 @@ const Home = () =>{
                         />
                         </Grid.Column>
                         <Button primary onClick={test}>Get Tweet</Button>
+                        <Button primary onClick={()=>console.log('refresh')}>Refresh</Button>
                         </Grid.Row>                        
                         <Grid.Row textAlign="center">
                         {/* <div class="ui two column centered grid"> */}
