@@ -238,11 +238,11 @@ const Home = () =>{
             f.title === a2[i].title)
     )
     
-    const sortTweets = (a,b) =>{
-        const fa = parseFloat(a.id)
-        const fb = parseFloat(b.id)
-        return  fa > fb ? 1 : (fa<fb ? -1 : 0)
-    }
+    // const sortTweets = (a,b) =>{
+    //     const fa = parseFloat(a.id)
+    //     const fb = parseFloat(b.id)
+    //     return  fa > fb ? 1 : (fa<fb ? -1 : 0)
+    // }
 
     useEffect(() =>{
         console.log("followings_lst_str changed ", followings_lst_str)
@@ -319,8 +319,8 @@ const Home = () =>{
                 // append arrays to a array state
                 // https://stackoverflow.com/questions/70690542/react-js-how-to-properly-append-multiple-items-to-an-array-state-using-its-use
                 //https://stackoverflow.com/questions/37057746/javascript-merge-two-arrays-of-objects-and-de-duplicate-based-on-property-valu
-                concat_arr.sort(sortTweets)
-                console.log('sorted')
+                console.log(concat_arr.map(i => i.id))
+                // concat_arr.sort(sortTweets)
                 setTweets((prevTweets) => _.unionBy(prevTweets, [...concat_arr], 'id'))
                 // by design, str_ids_res should contain last str_ids for every following in the following list
                 // dispatch(updateFollowing({str_ids_res}))
@@ -378,6 +378,7 @@ const Home = () =>{
     }, [timeframe])
 
     const refresh = ()=>{
+        console.log("refresh")
         setFollowings_lst_str(followings_list.map((i,j) => ({id: i.id_str, tweet_str_ids: undefined})))
         setGetTweet(true)
     }
