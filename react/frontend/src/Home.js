@@ -376,6 +376,11 @@ const Home = () =>{
             // getTweet()
         }
     }, [timeframe])
+
+    const refresh = ()=>{
+        setFollowings_lst_str(followings_list.map((i,j) => ({id: i.id_str, tweet_str_ids: undefined})))
+        setGetTweet(true)
+    }
     
     const test = async () =>{
         console.log('click test')
@@ -433,7 +438,7 @@ const Home = () =>{
                         />
                         </Grid.Column>
                         <Button primary onClick={test}>Get Tweet</Button>
-                        <Button primary onClick={()=>console.log('refresh')}>Refresh</Button>
+                        <Button primary onClick={refresh}>Refresh</Button>
                         </Grid.Row>                        
                         <Grid.Row textAlign="center">
                         {/* <div class="ui two column centered grid"> */}

@@ -350,7 +350,5 @@ app.get('/api/db/get/tweet', async(req,res)=>{
   res.status(200).send(results)
 })
 
-
-
 const PORT = 3001
 app.listen(PORT, ()=>{console.log(`listen on port ${PORT}`)})

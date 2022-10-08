@@ -61,13 +61,17 @@ import { set } from "lodash";
                 }
             })
             console.log(results)
-            const tweets_fav = await axios.get(url_prefix+'/api/db/get/tweet', {
-                params:{
-                    tweetIds:results.data.map(i=>i.tweet_id)
-                }
-            })
-            let data = tweets_fav.data
-
+            let data = []
+            if(results.data.length!==0){
+                const tweets_fav = await axios.get(url_prefix+'/api/db/get/tweet', {
+                    params:{
+                        tweetIds:results.data.map(i=>i.tweet_id)
+                    }
+                })
+                data = tweets_fav.data
+            }else{
+                setEnd(true)
+            }
             console.log(data)
             setFavourites(data)
             
