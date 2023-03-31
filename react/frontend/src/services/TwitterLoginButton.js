@@ -1,6 +1,8 @@
 import React from "react";
 // import { CONSUMER_KEY, CONSUMER_SECRET } from "../../../../nodejs/services/Config";
 import axios from 'axios'
+import Api from "../api/Api"
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -41,11 +43,11 @@ const TwitterLogin = (props) =>{
                             oauth_verifier: oauth_verifier,
                             oauth_token: oauth_token,
                         }
-                        axios.post("http://localhost:3001/api/oauth/access", payload)
+                        Api.post("/oauth/access", payload)
                         .then((response) =>{
                             console.log("response from first axios: ", response)
                             console.log("second axios")
-                            axios.get("http://localhost:3001/api/twitter/temp/profile",{
+                            Api.get("/twitter/temp/profile",{
                                 params: {
                                     ids: response.data.id
                                 }
@@ -54,7 +56,7 @@ const TwitterLogin = (props) =>{
                                 // this.props.login(true)
                                 console.log('set loggedin')
                                 dispatch(setUserId({id:response.data.user.data[0].id}))
-                                axios.post('http://localhost:3001/api/db/add/user', {
+                                Api.post('/db/add/user', {
                                     user: response.data.user.data[0]
                                 }).then(response=>{
                                     console.log(response)
@@ -76,7 +78,7 @@ const TwitterLogin = (props) =>{
 
     const login = async () =>{
         console.log('Click')
-        axios.post("http://localhost:3001/api/oauth/request")
+        Api.post("/oauth/request")
         .then((response)=>{
             console.log(response)
             window.location = `https://api.twitter.com/oauth/authorize?`
@@ -86,20 +88,19 @@ const TwitterLogin = (props) =>{
         
     }
 
-
-    const logout = async ()=>{
-        axios.post("http://localhost:3001/api/twitter/logout")
-        .then((response) =>{
-            console.log(response.data)
-            // this.props.login(false)
-            window.location ="http://localhost:3000"
-        })
-    }
+    // const logout = async ()=>{
+    //     Api.post("/twitter/logout")
+    //     .then((response) =>{
+    //         console.log(response.data)
+    //         // this.props.login(false)
+    //         window.location ="http://localhost:3000"
+    //     })
+    // }
 
     return (
        // <div>
             
-            <Button primary onClick={login}>Log In</Button>
+            <button className="loginButton" onClick={login}>Log in to Twitter</button>
             //{/* <button type="button" onClick={logout}>Log out</button> */}
         //</div>
     );

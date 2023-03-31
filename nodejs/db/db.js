@@ -2,8 +2,8 @@ const { Pool, Client } = require('pg')
 
 
 const pool = new Pool({
-  user: process.env.USER,
-  host: 'localhost',
+  user: process.env.USER | 'god',
+  host: process.env.PGHOST | 'localhost',
   database: 'twitter_app',
   password: null,
   port: 5432,

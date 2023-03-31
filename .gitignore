@@ -1,3 +1,5 @@
 node_modules/
 **/.DS_Store
 nodejs/services/Config.js
+.env
+.env.test

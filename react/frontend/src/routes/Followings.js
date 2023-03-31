@@ -1,5 +1,7 @@
 import React, {useState, useEffect, useCallback} from "react";
 import axios from 'axios';
+import Api from '../api/Api'
+
 
 import 'semantic-ui-css/semantic.min.css';
 
@@ -44,7 +46,7 @@ import NotificationPop from "../services/NotificationPopup";
     const handleCLick = async (user) =>{
         console.log(user)
         dispatch(removeFollowing({user}))
-        const x = await axios.delete("http://localhost:3001/api/db/delete/followings", 
+        const x = await Api.delete("/db/delete/followings", 
         {
             data:{
                 followings_id:user.id_str,

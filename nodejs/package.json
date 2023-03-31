@@ -14,6 +14,7 @@
     "axios": "^0.27.2",
     "big-integer": "^1.6.51",
     "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
     "express": "^4.18.1",
     "mashape-oauth": "^0.1.71",
     "oauth": "^0.9.15",

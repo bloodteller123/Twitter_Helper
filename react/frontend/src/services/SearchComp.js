@@ -2,6 +2,7 @@ import React, {useState, useEffect, useCallback} from 'react'
 import axios from 'axios'
 import 'semantic-ui-css/semantic.min.css';
 import _ from 'lodash'
+import Api from "../api/Api"
 
 
 
@@ -38,7 +39,7 @@ const SearchComp = ({userId}) =>{
       console.log('call searchUsers')
       if(val.length!==0){
           // console.log(value)
-          const users = await axios.get("http://localhost:3001/api/twitter/users/search", {
+          const users = await Api.get("/twitter/users/search", {
               params: {
                   userName: val
               }
@@ -123,7 +124,7 @@ const SearchComp = ({userId}) =>{
             case "follow_button":
               console.log("add following")
               dispatch(addFollowing({user}))
-              const result = await axios.post("http://localhost:3001/api/db/add/followings",{
+              const result = await Api.post("/db/add/followings",{
                 followings: user,
                 follower_id: userId
               })
@@ -133,7 +134,7 @@ const SearchComp = ({userId}) =>{
               // should we check if this user is in followings list? 
               console.log('remove')
               dispatch(removeFollowing({user}))
-              await axios.delete("http://localhost:3001/api/db/delete/followings", {
+              await Api.delete("/db/delete/followings", {
                 data:{
                     followings:user.id_str,
                     follower_id: userId

@@ -7,7 +7,7 @@ const app = express()
 
 const oauth = require('./services/oauth')()
 // const METHODS = require('./services/MENUMS')
-const {CONSUMER_KEY, CONSUMER_SECRET } = require('./services/Config.js')
+const {CONSUMER_KEY,  } = require('./services/Config.js')
 const {TwitterApi} = require('twitter-api-v2')
 const bigInt = require("big-integer");
 const db = require('./db/db')
@@ -73,8 +73,8 @@ app.post('/api/oauth/access', async (req, res) =>{
 
     
     const client = new TwitterApi({
-      appKey: CONSUMER_KEY,
-      appSecret: CONSUMER_SECRET,
+      appKey: process.env.CONSUMER_KEY,
+      appSecret: process.env.CONSUMER_SECRET,
       accessToken: oauth_token,
       accessSecret: oauth_token_secret,
     })
@@ -350,5 +350,5 @@ app.get('/api/db/get/tweet', async(req,res)=>{
   res.status(200).send(results)
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, ()=>{console.log(`listen on port ${PORT}`)})

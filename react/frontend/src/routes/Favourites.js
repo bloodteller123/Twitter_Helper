@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useCallback} from "react";
 import axios from 'axios';
+import Api from '../api/Api'
 
 import 'semantic-ui-css/semantic.min.css';
 
@@ -40,7 +41,7 @@ import { set } from "lodash";
     const [isEnd, setEnd] = useState(false)
 
 
-    const url_prefix = 'http://localhost:3001';
+    // const url_prefix = 'http://localhost:3001';
 
 //https://stackoverflow.com/questions/55733903/how-to-align-a-text-and-a-button-element-in-the-div-right-next-to-each-other
     const style = {
@@ -55,7 +56,7 @@ import { set } from "lodash";
     useEffect(()=>{
         (async() =>{ 
 
-            const results = await axios.get(url_prefix+'/api/db/get/favourites', {
+            const results = await Api.get('/db/get/favourites', {
                 params: {
                     userId:userId
                 }
@@ -63,7 +64,7 @@ import { set } from "lodash";
             console.log(results)
             let data = []
             if(results.data.length!==0){
-                const tweets_fav = await axios.get(url_prefix+'/api/db/get/tweet', {
+                const tweets_fav = await Api.get('/db/get/tweet', {
                     params:{
                         tweetIds:results.data.map(i=>i.tweet_id)
                     }

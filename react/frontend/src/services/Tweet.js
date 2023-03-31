@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useCallback} from "react";
 import axios from 'axios';
+import Api from "../api/Api"
 
 import 'semantic-ui-css/semantic.min.css';
 import '../CSS/Tweet.scss';
@@ -50,7 +51,7 @@ const Tweet = ({tweet, scroll, userId, page,updateFav}) =>{
         if(isliked==='red'){
             // setLike('grey')
 
-            const result = await axios.delete(url_prefix+'/api/db/delete/favourite',{
+            const result = await Api.delete('/db/delete/favourite',{
                 data:{
                     id:tweet.id,
                     userId:userId
@@ -73,7 +74,7 @@ const Tweet = ({tweet, scroll, userId, page,updateFav}) =>{
                 media_photo: JSON.stringify(tweet.media_photo)
             }
 
-            const result = await axios.post(url_prefix+'/api/db/add/favourite', params)
+            const result = await Api.post('/db/add/favourite', params)
             console.log(result)
         }
     }
