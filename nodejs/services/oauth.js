@@ -1,4 +1,3 @@
-const { resolve } = require('path');
 
 // https://stackoverflow.com/questions/39599514/vs-code-add-a-new-file-under-the-selected-working-directory
 // https://stackoverflow.com/questions/8595509/how-do-you-share-constants-in-nodejs-modules
@@ -6,20 +5,21 @@ const { resolve } = require('path');
 
 module.exports = () => {
     // const OAUTH = require('oauth-1.0a');
+    require("dotenv").config();
     const OAuth = require('oauth').OAuth
     const crypto = require('crypto');
     const post_request_url = "https://api.twitter.com/oauth/request_token";
     const post_access_url = "https://api.twitter.com/oauth/access_token";
     const callback_url = "https://www.twiburger.xyz/";
-    const { CONSUMER_KEY,CONSUMER_SECRET } = require('./Config');
+    // const { CONSUMER_KEY,CONSUMER_SECRET } = require('./Config');
     const axios = require('axios');
     // const METHODS = require('./MENUMS')
 
     const oa = new OAuth(
         post_request_url,
         post_access_url,
-        CONSUMER_KEY, 
-        CONSUMER_SECRET, 
+        process.env.CONSUMER_KEY, 
+        process.env.CONSUMER_SECRET, 
         '1.0',
         callback_url,
         'HMAC-SHA1'
@@ -27,7 +27,7 @@ module.exports = () => {
 
     const oauth_func = {
         getOauthRequest: () =>{
-
+            console.log(process.env.CONSUMER_KEY)
             // https://developer.twitter.com/en/docs/authentication/guides/log-in-with-twitter#obtain-a-request-token
             
             return new Promise((resolve, reject) => {

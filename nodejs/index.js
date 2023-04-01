@@ -1,4 +1,4 @@
-
+require("dotenv").config();
 const express = require('express')
 const cors = require('cors')
 const { default: axios } = require('axios')
@@ -7,7 +7,6 @@ const app = express()
 
 const oauth = require('./services/oauth')()
 // const METHODS = require('./services/MENUMS')
-const {CONSUMER_KEY,  } = require('./services/Config.js')
 const {TwitterApi} = require('twitter-api-v2')
 const bigInt = require("big-integer");
 const db = require('./db/db')
@@ -26,7 +25,7 @@ let loggedInClient = null
 
 
 //  get a list of all followings in the current account
-app.get('/followings', (req, res) =>{
+app.get('/api/followings', (req, res) =>{
     try{
         //  retrieve sth from the database
         // for now just returns the hardcoded data
