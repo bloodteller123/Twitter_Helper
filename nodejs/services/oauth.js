@@ -11,6 +11,8 @@ module.exports = () => {
     const post_request_url = "https://api.twitter.com/oauth/request_token";
     const post_access_url = "https://api.twitter.com/oauth/access_token";
     const callback_url = "https://www.twiburger.xyz/";
+    // const callback_url = "http://www.localhost:3000/";
+
     // const { CONSUMER_KEY,CONSUMER_SECRET } = require('./Config');
     const axios = require('axios');
     // const METHODS = require('./MENUMS')

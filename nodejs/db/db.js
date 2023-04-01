@@ -5,7 +5,7 @@ const pool = new Pool({
   user: process.env.USER | 'god',
   host: process.env.PGHOST | 'localhost',
   database: 'twitter_app',
-  password: null,
+  password: process.env.PASSWORD,
   port: 5432,
 })
 
