@@ -4,7 +4,7 @@
     color: white;
     border-radius: 30px;
     padding: 17px 35px;
-    margin: 20px 0 70px;
+    margin: 50px 0 70px;
     min-width: 160px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -12,14 +12,26 @@
     text-align: center;
 }
 .loginButton:hover{
-    background-color: '#1ed760';
+    background-color: red;
 }
 .loginButton:focus{
-    background-color: '#1ed760';
+    background-color: red;
 }
 
 .login{
     background-color: black;
-    margin-top: 500dp;
-    height: 100%;
+    // margin-top: 500dp;
+    // height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
+}
+
+.loginBanner{
+    color:white;
+    // margin-top: 2;
+    font-size: 5rem;
 }

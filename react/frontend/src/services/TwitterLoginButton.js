@@ -98,11 +98,11 @@ const TwitterLogin = (props) =>{
     // }
 
     return (
-       // <div>
-            
+       <div>
+            <h1 className='loginBanner'>Twitter Helper</h1>
             <button className="loginButton" onClick={login}>Log in to Twitter</button>
-            //{/* <button type="button" onClick={logout}>Log out</button> */}
-        //</div>
+            {/* //<button type="button" onClick={logout}>Log out</button> */}
+        </div>
     );
 }
 
