@@ -1,32 +1,26 @@
 # Twitter_Helper
 
-A product that helps people focus only on tweets from some selected followings without being bothered by ads and recommended tweets from Twitter
+A product that helps people focus only on tweets from some selected followings without being bothered by ads and recommended tweets from Twitter. <br>
+- [Demo](https://twiburger.xyz/)
 
-# To DO
+# Important Note
 
-1. Implement Log in system for each user
+Unfortunately, [Twitter has depreciated 'Elevated' free tier for APIs access](https://twitter.com/TwitterDev/status/1641222782594990080?s=20), on which this project heavily reles. The new 'baisc' tier is charging $100/ month. Today (04/14/2023), a notice from Twitter dev comes in, that this Twitter-dependent application is suspended because of the new API policy. Therefore, the development of this project will be suspended as they claimed and no longer maintained.
 
-2. Every Logged in user can authorize multiple twitter accounts?
+<img width="726" alt="Screen Shot 2023-04-14 at 6 57 10 PM" src="https://user-images.githubusercontent.com/25407523/232167816-9b7be63b-82ef-4ab8-8627-df944d17e60a.png">
+ 
 
-~~3. Add router feature~~
+# Tech stack
 
-~~4. Add a dropdown so users can select if they want to see the most recent 24 hrs, 48 hrs etc tweets from the followings, instead of the 24 hrs by default~~
-
-~~5. update reducers to allow modifying the state array (tweet_str_ids)~~
-
-~~6. sort tweets chronologically~~
-
-~~7. Integrate database~~
-
-~~8. Implement Notes which allow users to save some tweets to the repository.~~
-
-9. bugs: 1. followers --> remove some --> click 'Tweets'; addFollowingBUlk is called again
-
-~~10. sometimes the tweets are not displayed in chronological order~~
-
-11. implement refresh fuction
-
-12. support other medias
+- Javascript
+- React.js
+- Node.js
+- Express.js
+- PostgreSQL
+- Redux
+- HTML
+- CSS
+- Twitter API
 
 # sidenotes
  
